@@ -6,7 +6,7 @@ Turn a photo into a bold poster printed in two to four flat inks, in the style o
 
 - **2, 3 or 4 inks.** More inks keep more detail. The default inks are navy, red, light blue and cream.
 - **Any colours.** Change an ink with a colour picker or a hex code, or start from one of six presets.
-- **Effect sliders.** Rotation, zoom, blur, brightness, contrast and line hatching.
+- **Effect sliders.** Rotation, zoom, blur, brightness, contrast, line hatching and line density.
 - **Tone split.** Drag markers over a histogram of the photo to set how much of the picture each ink covers.
 - **Message band.** An optional word along the bottom, in one of four typefaces.
 - **PNG export** at 2400 px on the long side.
@@ -52,16 +52,20 @@ A laser engraves a photo as rows of dots. The software (LightBurn, LaserGRBL, et
 ### Making an engraving
 
 1. **Pick a material.** Each preset sets the preview colours, whether the picture is inverted, and sensible starting values for the midtones, sharpening and shadow density.
-2. **Set the output.** Width in millimetres and the resolution (line interval). 254 DPI / 0.10 mm suits most diode and CO2 lasers; use 318 or 508 DPI only if your machine's spot is small enough. The readout shows the finished size, the dot grid and a rough job time.
-3. **Choose a style** and adjust the tones. The preview updates on the real dot grid.
-4. **Download.** **Download for LightBurn** saves a `.lbrn2` project with the image embedded, placed at the origin, sized correctly, on an Image layer with Pass-through on at the chosen DPI. **Download PNG** saves the same two-tone image with its physical size embedded, for any other laser software (in LightBurn, import it, set the layer to Image mode and switch Pass-through on).
-5. **In LightBurn**, open the `.lbrn2` with **File → Open** (Import drops the layer settings), set your speed and power on the layer (the values in the file are only placeholders), and do not resize the image. If you must change the size, come back here and re-export at the new width.
+2. **Choose a shape** (optional): circle, oval, rounded, arch, heart, hexagon or star. Outside the shape nothing is engraved. Circle, heart, hexagon and star set their own proportions; oval, rounded and arch follow the Frame choice. **Engrave an outline** adds a line just inside the edge, and **Cut line in the LightBurn file** adds a second layer that cuts the piece out along the shape (or the outer rectangle while the message band is on).
+3. **Set the output.** Width in millimetres and the resolution (line interval). 254 DPI / 0.10 mm suits most diode and CO2 lasers; use 318 or 508 DPI only if your machine's spot is small enough. The readout shows the finished size, the dot grid and a rough job time.
+4. **Choose a style** and adjust the tones. The preview updates on the real dot grid.
+5. **Download.** **Download for LightBurn** saves a `.lbrn2` project with the image embedded, placed at the origin, sized correctly, on an Image layer with Pass-through on at the chosen DPI. **Download PNG** saves the same two-tone image with its physical size embedded, for any other laser software (in LightBurn, import it, set the layer to Image mode and switch Pass-through on).
+6. **In LightBurn**, open the `.lbrn2` with **File → Open** (Import drops the layer settings), set your speed and power on the layer (the values in the file are only placeholders), and do not resize the image. If you must change the size, come back here and re-export at the new width.
 
 ### What the controls do
 
 | Control | What it does | Why |
 |---|---|---|
 | Material | Preview colours, inversion and starting values | On slate, anodised metal, glass and coated tumblers the laser leaves a *light* mark on a *dark* surface, so the picture is inverted: bright areas get engraved |
+| Shape | Masks the picture to a circle, oval, rounded rectangle, arch, heart, hexagon or star | For ornaments, coasters and plaques. The blank margin outside the shape is wasted material unless you cut the shape out |
+| Engrave an outline | A line just inside the shape's edge (or around the picture when unshaped) | Hides the ragged dither edge and gives a finished look |
+| Cut line | A second, vector layer in the `.lbrn2` along the shape | Circles and ovals are native LightBurn ellipses, the rest closed polylines. Speed and power on that layer are placeholders |
 | Invert | Flip which tones are engraved | Override the material's choice |
 | Style | The dithering algorithm (see below) | Different materials hold different dot structures |
 | Brightness, Contrast | Shift and stretch the tones after auto-levels | The photo's 1st–99th percentiles are always stretched to the full range first |
@@ -91,7 +95,7 @@ A laser engraves a photo as rows of dots. The software (LightBurn, LaserGRBL, et
 ### The files
 
 - **PNG.** Pure black (engrave) and white (blank), one pixel per dot, with a `pHYs` chunk carrying the DPI so it imports at the right size.
-- **`.lbrn2`.** A LightBurn project (XML) containing the PNG as base64 in a `Bitmap` shape whose `W`/`H` are pixels × 25.4 / DPI and whose `XForm` holds the centre, plus one `CutSetting_Img` layer with `passThrough` on (LightBurn stores `ditherMode="threshold"` beside it), the DPI and line interval linked, and the speed and power from the Output section. The structure follows files written by LightBurn 0.9 to 2.0; the format is undocumented but plain XML.
+- **`.lbrn2`.** A LightBurn project (XML) containing the PNG as base64 in a `Bitmap` shape whose `W`/`H` are pixels × 25.4 / DPI and whose `XForm` holds the centre, plus one `CutSetting_Img` layer with `passThrough` on (LightBurn stores `ditherMode="threshold"` beside it), the DPI and line interval linked, and the speed and power from the Output section. With a cut line, a second `CutSetting type="Cut"` layer holds an `Ellipse`, a `Rect`, or a `Path` whose `VertList` is a run of `V<x> <y>` vertices in mm (Y up) with `PrimList` set to `LineClosed`. The structure follows files written by LightBurn 0.9 to 2.0; the format is undocumented but plain XML.
 
 ## Controls
 
@@ -132,6 +136,8 @@ The paper border prints in the Highlight ink.
 | Brightness | −100 to +100 | 0 | Shifts every tone lighter or darker |
 | Contrast | −100 to +100 | 0 | Pushes tones apart (up to 4×) or pulls them together (down to ¼×) |
 | Line hatching | 0 to 100 | 45 | Sets how wide the striped zone between inks is. 0 gives clean edges |
+| Line density | 30 to 160 | 80 | Number of lines across the poster's width. Lower is bolder |
+| Hatch | Shadows only, Every boundary | Shadows only | Shadows only hatches just the edge of the darkest ink, as in the original poster. Every boundary hatches all of them |
 | Tone split | One marker per ink boundary | Even split | Sets where each ink starts. Arrow keys move a focused marker 1% (5% with Shift) |
 
 ### Message
@@ -162,7 +168,7 @@ All of this runs on a canvas in plain JavaScript:
 2. **Grayscale.** Each pixel becomes a luminance value (Rec. 601 weights).
 3. **Blur.** A Gaussian blur, approximated with three box-blur passes. The blur radius is a fixed share of the poster width, so the preview and the export look the same.
 4. **Normalize.** Tones are stretched between the photo's 1st and 99th percentiles, so dark and bright photos both use every ink. Brightness and contrast are applied next.
-5. **Split.** Each pixel takes the ink of the tone band it falls in. Line hatching adds a repeating offset row by row, which breaks the edges between inks into horizontal lines.
+5. **Split.** Each pixel takes the ink of the tone band it falls in. Near a hatched boundary, rows alternate between the two inks as horizontal lines whose weight runs from 20% to 80% across the zone, so the lines thin and thicken without crumbling into specks. By default only the shadow boundary is hatched.
 6. **Finish.** The border, message band and lettering are drawn on top.
 
 The preview renders at screen resolution and caches the framing and blur steps, so changing an ink or a Tone split marker only redoes the split. Export runs the same pipeline at full size.
@@ -184,6 +190,7 @@ These settings are near the top of the script in `index.html`:
 | `FRAME_ASPECT` | Height-to-width ratios of the Poster and Square frames |
 | `SAMPLE_PHOTO` | The photo shown at start, as a data URI |
 | `MATERIALS` | Engraving material presets: preview colours, inversion, shadow cap, midtones, sharpening and default style |
+| `SHAPES`, `shapePoints()` | The engraving shapes and the polygon each one is drawn, masked and cut with |
 | `DITHERS`, `KERNELS` | The style list and the error-diffusion kernels |
 | `INTERVALS` | The line intervals (mm) offered in the Resolution menu |
 | `PREVIEW_MAX_DOTS` | Above this many dots the engrave preview renders on a reduced grid |
@@ -193,8 +200,11 @@ These settings are near the top of the script in `index.html`:
 ```
 .
 ├── index.html   # the whole app: markup, styles, script and the sample photo
+├── update.sh    # stages, commits ("update" or a message you pass) and pushes
 └── README.md
 ```
+
+To publish a change, run `./update.sh` or `./update.sh "what changed"`.
 
 ## Notes
 

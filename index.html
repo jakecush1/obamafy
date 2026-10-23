@@ -389,6 +389,19 @@ body[data-mode="engrave"] .poster-only, body:not([data-mode="engrave"]) .eng-onl
 .eng-tip { padding: 10px 12px; border: 1px solid var(--rule); border-radius: 6px; font-size: 13px; color: var(--ink-soft); }
 .eng-tip b { color: var(--ink); }
 
+/* Engraving shapes */
+.shapes { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.shape {
+  display: grid; justify-items: center; gap: 4px; padding: 8px 4px 6px;
+  border: 1px solid var(--rule); border-radius: 6px; background: transparent;
+  font-size: 12px; font-weight: 650; line-height: 1.1;
+}
+.shape svg { width: 30px; height: 30px; display: block; fill: var(--ink-soft); }
+.shape:hover { border-color: var(--ink-soft); }
+.shape[aria-pressed="true"] { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+.shape[aria-pressed="true"] svg { fill: var(--ink); }
+.seg.is-off { opacity: 0.4; pointer-events: none; }
+
 /* ---------- Phones ---------- */
 @media (max-width: 860px) {
   .app { display: flex; flex-direction: column; gap: 0; padding-block: 12px; }
@@ -462,6 +475,14 @@ body[data-mode="engrave"] .poster-only, body:not([data-mode="engrave"]) .eng-onl
           <button type="button" data-value="photo" aria-pressed="false">Photo shape</button>
         </div>
       </div>
+      <div class="field eng-only">
+        <span class="label" id="lbl-shape">Shape</span>
+        <div class="shapes" id="shapes" role="group" aria-labelledby="lbl-shape"></div>
+        <p class="hint" id="shape-hint"></p>
+      </div>
+      <label class="switch eng-only" for="eng-outline"><span>Engrave an outline</span><input type="checkbox" id="eng-outline"><span class="track" aria-hidden="true"></span></label>
+      <label class="switch eng-only" for="eng-cutline"><span>Cut line in the LightBurn file</span><input type="checkbox" id="eng-cutline"><span class="track" aria-hidden="true"></span></label>
+      <p class="hint eng-only" id="cut-hint" hidden></p>
       <div class="slider" data-key="rotation">
         <label for="s-rotation">Rotation</label><output id="o-rotation" for="s-rotation">0°</output>
         <input type="range" id="s-rotation" min="-180" max="180" step="1" value="0">
@@ -529,6 +550,20 @@ body[data-mode="engrave"] .poster-only, body:not([data-mode="engrave"]) .eng-onl
       <div class="slider poster-only" data-key="lines">
         <label for="s-lines">Line hatching</label><output id="o-lines" for="s-lines">45</output>
         <input type="range" id="s-lines" min="0" max="100" step="1" value="45">
+      </div>
+      <div class="slider poster-only" data-key="lineDensity">
+        <label for="s-lineDensity">Line density</label><output id="o-lineDensity" for="s-lineDensity">80 lines</output>
+        <input type="range" id="s-lineDensity" min="30" max="160" step="1" value="80">
+      </div>
+      <div class="field poster-only">
+        <div class="field-head">
+          <span class="label" id="lbl-hatch">Hatch</span>
+          <span class="hint">Where the lines go</span>
+        </div>
+        <div class="seg" role="group" aria-labelledby="lbl-hatch" data-key="hatch">
+          <button type="button" data-value="shadow" aria-pressed="true">Shadows only</button>
+          <button type="button" data-value="all" aria-pressed="false">Every boundary</button>
+        </div>
       </div>
       <div class="field eng-only">
         <label class="label" for="eng-dither">Style</label>
@@ -710,6 +745,7 @@ body[data-mode="engrave"] .poster-only, body:not([data-mode="engrave"]) .eng-onl
     brightness: { def: 0,   from: 0,   fmt: signed },
     contrast:   { def: 0,   from: 0,   fmt: signed },
     lines:      { def: 45,  fmt: String },
+    lineDensity:{ def: 80,  fmt: (v) => `${v} lines` },
     msgSize:    { def: 100, fmt: (v) => `${v}%` },
     msgSpacing: { def: 6,   from: 0,   fmt: signed },
     // Engraving (the material preset sets eGamma, eSharpen and eMaxBurn)
@@ -767,6 +803,29 @@ body[data-mode="engrave"] .poster-only, body:not([data-mode="engrave"]) .eng-onl
   const INTERVALS = [0.2, 0.15, 0.1, 0.08, 0.06, 0.05, 0.04];
   const PREVIEW_MAX_DOTS = 2.4e6; // bigger jobs preview on a reduced grid
 
+  // Shapes the engraving can be masked to. `aspect` (height ÷ width) fixes the
+  // proportions; shapes without one follow the Frame choice. Circles and ovals
+  // are written to LightBurn as native ellipses, everything else as a polyline.
+  const SHAPES = [
+    { id: 'none',    name: 'None' },
+    { id: 'circle',  name: 'Circle',  aspect: 1, ellipse: true },
+    { id: 'oval',    name: 'Oval',    ellipse: true },
+    { id: 'rounded', name: 'Rounded' },
+    { id: 'arch',    name: 'Arch' },
+    { id: 'heart',   name: 'Heart',   aspect: 0.92 },
+    { id: 'hexagon', name: 'Hexagon', aspect: 1.155 },
+    { id: 'star',    name: 'Star',    aspect: 0.95 },
+  ];
+  // The Material Design heart as cubic Béziers, in its 20 × 18.35 box (icon coords minus 2, 3).
+  const HEART_CURVES = [
+    [[10.55, 20.03], [5.4, 15.36], [2, 12.28], [2, 8.5]],
+    [[2, 8.5], [2, 5.42], [4.42, 3], [7.5, 3]],
+    [[7.5, 3], [9.24, 3], [10.91, 3.81], [12, 5.09]],
+    [[12, 5.09], [13.09, 3.81], [14.76, 3], [16.5, 3]],
+    [[16.5, 3], [19.58, 3], [22, 5.42], [22, 8.5]],
+    [[22, 8.5], [22, 12.28], [18.6, 15.36], [13.45, 20.04]],
+  ];
+
   /* =====================================================================
      State
      ===================================================================== */
@@ -774,7 +833,7 @@ body[data-mode="engrave"] .poster-only, body:not([data-mode="engrave"]) .eng-onl
   const S = {
     frame: 'poster', rotation: 0, zoom: 100, panX: 0, panY: 0,
     count: 4, inks: PRESETS[0].inks.slice(),
-    blur: 30, brightness: 0, contrast: 0, lines: 45, cuts: null,
+    blur: 30, brightness: 0, contrast: 0, lines: 45, lineDensity: 80, hatch: 'shadow', cuts: null,
     msgOn: true, msgText: 'HOPE', caps: true, font: 'montserrat', msgSize: 100, msgSpacing: 6,
     bandInk: 0, textInk: 2, border: true,
     // laser engraving
@@ -782,6 +841,7 @@ body[data-mode="engrave"] .poster-only, body:not([data-mode="engrave"]) .eng-onl
     material: 'lightwood', dither: 'jarvis', invert: false, matPreview: true,
     eWidth: 100, eInterval: 0.1, eSpeed: 100, ePower: 50,
     eBrightness: 0, eContrast: 0, eGamma: 12, eSharpen: 35, eSmooth: 15, eMaxBurn: 88, eMinBurn: 0, eCell: 6, eLines: 45, engCut: null,
+    shape: 'none', outline: false, cutLine: false,
     // source photo
     srcPrev: null, srcFull: null, srcW: 0, srcH: 0, lo: 0, hi: 1, imgId: 0, isSample: true,
   };
@@ -796,6 +856,64 @@ body[data-mode="engrave"] .poster-only, body:not([data-mode="engrave"]) .eng-onl
   const isEng = () => S.mode === 'engrave';
   const activeCount = () => (isEng() ? 2 : S.count);
   const currentMaterial = () => MATERIALS.find((m) => m.id === S.material) || MATERIALS[0];
+  const activeShape = () => (isEng() && SHAPES.find((s) => s.id === S.shape)) || SHAPES[0];
+
+  // Outline of a shape as a polygon filling a w × h box (y down). Used for the
+  // preview mask, the button icons and the cut line in the LightBurn file.
+  function shapePoints(id, w, h) {
+    const pts = [];
+    const TAU = Math.PI * 2;
+    const arc = (cx, cy, rx, ry, a0, a1, n) => {
+      for (let i = 0; i <= n; i++) { const a = a0 + ((a1 - a0) * i) / n; pts.push([cx + rx * Math.cos(a), cy + ry * Math.sin(a)]); }
+    };
+    switch (id) {
+      case 'circle':
+      case 'oval':
+        for (let i = 0; i < 256; i++) { const a = (TAU * i) / 256; pts.push([w / 2 + (w / 2) * Math.cos(a), h / 2 + (h / 2) * Math.sin(a)]); }
+        break;
+      case 'rounded': {
+        const r = 0.12 * Math.min(w, h);
+        arc(w - r, r, r, r, -Math.PI / 2, 0, 24);
+        arc(w - r, h - r, r, r, 0, Math.PI / 2, 24);
+        arc(r, h - r, r, r, Math.PI / 2, Math.PI, 24);
+        arc(r, r, r, r, Math.PI, 1.5 * Math.PI, 24);
+        break;
+      }
+      case 'arch': {
+        const r = Math.min(w / 2, h);
+        arc(w / 2, r, w / 2, r, Math.PI, TAU, 128);
+        pts.push([w, h], [0, h]);
+        break;
+      }
+      case 'heart': {
+        const nx = (x) => ((x - 2) / 20) * w, ny = (y) => ((y - 3) / 18.35) * h;
+        pts.push([w / 2, h]);
+        HEART_CURVES.forEach(([p0, p1, p2, p3]) => {
+          for (let i = 0; i < 24; i++) {
+            const t = i / 24, u = 1 - t, a = u * u * u, b = 3 * u * u * t, c = 3 * u * t * t, d = t * t * t;
+            pts.push([nx(a * p0[0] + b * p1[0] + c * p2[0] + d * p3[0]), ny(a * p0[1] + b * p1[1] + c * p2[1] + d * p3[1])]);
+          }
+        });
+        pts.push([nx(13.45), ny(20.04)]);
+        break;
+      }
+      case 'hexagon':
+        pts.push([w / 2, 0], [w, h / 4], [w, (3 * h) / 4], [w / 2, h], [0, (3 * h) / 4], [0, h / 4]);
+        break;
+      case 'star': {
+        const sx = (x) => ((x + 0.951) / 1.902) * w, sy = (y) => ((y + 1) / 1.809) * h;
+        for (let i = 0; i < 10; i++) { const a = -Math.PI / 2 + (Math.PI * i) / 5, r = i % 2 ? 0.5 : 1; pts.push([sx(r * Math.cos(a)), sy(r * Math.sin(a))]); }
+        break;
+      }
+      default:
+        pts.push([0, 0], [w, 0], [w, h], [0, h]);
+    }
+    return pts;
+  }
+  function addPath(ctx, pts, x, y) {
+    pts.forEach(([px, py], i) => (i ? ctx.lineTo(x + px, y + py) : ctx.moveTo(x + px, y + py)));
+    ctx.closePath();
+  }
   const ENGRAVE_PALETTE = ['#000000', '#000000', '#FFFFFF', '#FFFFFF'];
   // The four colour slots in use. In engrave mode there are only two tones:
   // engraved (slots 0 and 1, black in the file) and blank material (slots 2 and 3, white).
@@ -979,25 +1097,34 @@ body[data-mode="engrave"] .poster-only, body:not([data-mode="engrave"]) .eng-onl
 
   // Writes ink colours into `data` (RGBA) and returns a 64-bin histogram of
   // the adjusted tones, which the Tone split control draws.
+  // Hatching: near a boundary between two inks, rows alternate between them as
+  // horizontal lines. The share of each line given to the lighter ink runs from
+  // HATCH_MIN to HATCH_MAX across the zone, so lines thin and thicken but never
+  // crumble into specks. By default only the shadow boundary is hatched.
+  const HATCH_MIN = 0.2, HATCH_MAX = 0.8;
   function mapTones(v, w, h, posterW, data, pal) {
     const cols = SLOTS_FOR[S.count].map((i) => hexToRgb(pal[i]));
-    const c0 = cols[0], c1 = cols[1] || c0, c2 = cols[2] || c0, c3 = cols[3] || c0;
     const cuts = getCuts();
     const t0 = cuts[0] ?? 2, t1 = cuts[1] ?? 2, t2 = cuts[2] ?? 2;
     const lo = S.lo, span = Math.max(0.02, S.hi - S.lo);
     const cf = Math.pow(2, S.contrast / 50);           // 0.25x .. 4x
     const bo = S.brightness / 250;                      // -0.4 .. +0.4
-    const amp = Math.pow(S.lines / 100, 1.15) * 0.3;     // width of the hatched zone
-    const period = Math.max(2.5, posterW / 120);         // line spacing scales with poster size
+    const half = (Math.pow(S.lines / 100, 1.15) * 0.3) / 2;   // half-width of the hatched zone, in tone
+    const period = Math.max(2.5, posterW / S.lineDensity);    // line spacing scales with poster size
+    const nCuts = half > 0 ? (S.hatch === 'all' ? cuts.length : 1) : 0;
     const hist = new Uint32Array(64);
     for (let y = 0; y < h; y++) {
-      const d = ((((y + 0.5) / period) % 1) - 0.5) * amp;  // same offset along a row = horizontal lines
+      const ph = ((y + 0.5) / period) % 1;              // same phase along a row = horizontal lines
       let p = y * w, q = p * 4;
       for (let x = 0; x < w; x++, p++, q += 4) {
-        let t = ((v[p] - lo) / span - 0.5) * cf + 0.5 + bo;
+        const t = ((v[p] - lo) / span - 0.5) * cf + 0.5 + bo;
         hist[((t < 0 ? 0 : t > 1 ? 1 : t) * 63.999) | 0]++;
-        t += d;
-        const c = t > t0 ? (t > t1 ? (t > t2 ? c3 : c2) : c1) : c0;
+        let band = t > t0 ? (t > t1 ? (t > t2 ? 3 : 2) : 1) : 0;
+        for (let k = 0; k < nCuts; k++) {
+          const u = (t - cuts[k]) / half;               // -1 .. 1 across the zone
+          if (u > -1 && u < 1) { band = ph < HATCH_MIN + (HATCH_MAX - HATCH_MIN) * (u + 1) / 2 ? k + 1 : k; break; }
+        }
+        const c = cols[band];
         data[q] = c[0]; data[q + 1] = c[1]; data[q + 2] = c[2]; data[q + 3] = 255;
       }
     }
@@ -1008,7 +1135,7 @@ body[data-mode="engrave"] .poster-only, body:not([data-mode="engrave"]) .eng-onl
   function layout(W) {
     const b = S.border ? Math.round(W * 0.035) : 0;
     const iw = W - 2 * b;
-    const aspect = S.frame === 'photo' && S.srcW ? clamp(S.srcH / S.srcW, 0.45, 2.2) : (FRAME_ASPECT[S.frame] || 1.38);
+    const aspect = activeShape().aspect || (S.frame === 'photo' && S.srcW ? clamp(S.srcH / S.srcW, 0.45, 2.2) : (FRAME_ASPECT[S.frame] || 1.38));
     const ih = Math.round(iw * aspect);
     const bh = S.msgOn ? Math.round(iw * 0.25 * (S.msgSize / 100)) : 0;
     return { W, H: ih + bh + 2 * b, b, iw, ih, bh };
@@ -1101,11 +1228,18 @@ body[data-mode="engrave"] .poster-only, body:not([data-mode="engrave"]) .eng-onl
     const out = new Uint8Array(n);
     if (style === 'threshold' || style === 'poster') {
       const c = getCuts()[0];
-      const amp = style === 'poster' ? Math.pow(S.eLines / 100, 1.15) * 0.3 : 0;
-      const period = Math.max(2.5, posterW / 120);
+      const half = style === 'poster' ? (Math.pow(S.eLines / 100, 1.15) * 0.3) / 2 : 0;
+      const period = Math.max(2.5, posterW / 80);
       for (let y = 0; y < h; y++) {
-        const d = ((((y + 0.5) / period) % 1) - 0.5) * amp;
-        for (let x = 0, p = y * w; x < w; x++, p++) out[p] = (t[p] + d <= c) !== inv ? 1 : 0;
+        const ph = ((y + 0.5) / period) % 1;
+        for (let x = 0, p = y * w; x < w; x++, p++) {
+          let dark = t[p] <= c;
+          if (half > 0) {
+            const u = (t[p] - c) / half;
+            if (u > -1 && u < 1) dark = ph >= HATCH_MIN + (HATCH_MAX - HATCH_MIN) * (u + 1) / 2;
+          }
+          out[p] = dark !== inv ? 1 : 0;
+        }
       }
       return out;
     }
@@ -1236,6 +1370,7 @@ body[data-mode="engrave"] .poster-only, body:not([data-mode="engrave"]) .eng-onl
     ctx.fillStyle = pal[3]; // paper border uses the highlight ink (blank material when engraving)
     ctx.fillRect(0, 0, g.W, g.H);
     ctx.putImageData(imageData, g.b, g.b);
+    maskShape(ctx, g, pal);
     if (S.msgOn) {
       ctx.fillStyle = pal[S.bandInk];
       ctx.fillRect(g.b, g.b + g.ih, g.iw, g.bh);
@@ -1246,6 +1381,35 @@ body[data-mode="engrave"] .poster-only, body:not([data-mode="engrave"]) .eng-onl
   // Engraving output grid: one pixel per laser dot across the chosen width.
   function engraveDots() {
     return layout(Math.max(16, Math.round(S.eWidth / S.eInterval)));
+  }
+
+  // Engrave mode: blank out everything outside the chosen shape, and optionally
+  // engrave an outline just inside its edge (or around the picture when unshaped).
+  function maskShape(ctx, g, pal) {
+    const sh = activeShape();
+    if (sh.id === 'none' && !S.outline) return;
+    const pts = shapePoints(sh.id, g.iw, g.ih);
+    if (sh.id !== 'none') {
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(g.b, g.b, g.iw, g.ih);
+      addPath(ctx, pts, g.b, g.b);
+      ctx.clip('evenodd');
+      ctx.fillStyle = pal[3];
+      ctx.fillRect(g.b, g.b, g.iw, g.ih);
+      ctx.restore();
+    }
+    if (S.outline) {
+      ctx.save();
+      ctx.beginPath();
+      addPath(ctx, pts, g.b, g.b);
+      ctx.clip();                                   // keeps the stroke inside the shape
+      ctx.lineWidth = Math.max(4, Math.round(g.W * 0.016));
+      ctx.lineJoin = 'round';
+      ctx.strokeStyle = pal[0];
+      ctx.stroke();
+      ctx.restore();
+    }
   }
 
   function exportSize() {
@@ -1362,6 +1526,22 @@ body[data-mode="engrave"] .poster-only, body:not([data-mode="engrave"]) .eng-onl
   });
   const xmlAttr = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
 
+  // The cut line as a LightBurn vector shape, in mm with Y up and the bitmap's
+  // bottom-left corner at (0, 0). With the message band on, the piece is the
+  // whole rectangle; otherwise the line follows the chosen shape.
+  function cutLineXml(g) {
+    const iv = S.eInterval, f = (v) => +v.toFixed(3), sh = activeShape();
+    if (sh.id === 'none' || S.msgOn) {
+      return `<Shape Type="Rect" CutIndex="1" W="${f(g.W * iv)}" H="${f(g.H * iv)}"><XForm>1 0 0 1 ${f((g.W * iv) / 2)} ${f((g.H * iv) / 2)}</XForm></Shape>`;
+    }
+    if (sh.ellipse) {
+      const cx = (g.b + g.iw / 2) * iv, cy = (g.H - g.b - g.ih / 2) * iv;
+      return `<Shape Type="Ellipse" CutIndex="1" Rx="${f((g.iw * iv) / 2)}" Ry="${f((g.ih * iv) / 2)}"><XForm>1 0 0 1 ${f(cx)} ${f(cy)}</XForm></Shape>`;
+    }
+    const verts = shapePoints(sh.id, g.iw, g.ih).map(([x, y]) => `V${f((g.b + x) * iv)} ${f((g.H - g.b - y) * iv)}`).join('');
+    return `<Shape Type="Path" CutIndex="1"><XForm>1 0 0 1 0 0</XForm><VertList>${verts}</VertList><PrimList>LineClosed</PrimList></Shape>`;
+  }
+
   /* ---- LightBurn project (.lbrn2) with the image embedded ---- */
   // Everything LightBurn needs is in one file: the dithered PNG as base64 inside a
   // Bitmap shape sized in millimetres (W, H = pixels × 25.4 / DPI; XForm holds the
@@ -1382,7 +1562,25 @@ body[data-mode="engrave"] .poster-only, body:not([data-mode="engrave"]) .eng-onl
     const word = S.msgOn ? S.msgText.replace(/\s+/g, ' ').trim() : '';
     const layerName = `${word || 'Photo'} engrave`;
     const style = (DITHERS.find((d) => d.id === S.dither) || {}).name || S.dither;
+    const cutPower = 80, cutSpeed = 10;
+    const cutLayer = !S.cutLine ? '' : `
+    <CutSetting type="Cut">
+        <index Value="1"/>
+        <name Value="Cut out"/>
+        <minPower Value="${cutPower}"/>
+        <maxPower Value="${cutPower}"/>
+        <minPower2 Value="${cutPower}"/>
+        <maxPower2 Value="${cutPower}"/>
+        <speed Value="${cutSpeed}"/>
+        <priority Value="1"/>
+        <numPasses Value="1"/>
+        <kerf Value="0"/>
+    </CutSetting>`;
+    const cutShape = S.cutLine ? `\n    ${cutLineXml(g)}` : '';
+    const sh = activeShape();
     const notes = `Made with Screenprint Poster Maker, engrave mode.\n` +
+      (sh.id !== 'none' ? `Shape: ${sh.name}.\n` : '') +
+      (S.cutLine ? `Cut layer: ${cutSpeed} mm/s at ${cutPower}% is a placeholder; set it for your material and thickness.\n` : '') +
       `${g.W} x ${g.H} dots at ${Math.round(dpi)} DPI (${S.eInterval} mm line interval) = ${wmm} x ${hmm} mm.\n` +
       `Material preset: ${currentMaterial().name}${S.invert ? ' (inverted)' : ''}. Style: ${style}.\n` +
       `The image is already dithered, one pixel per dot. Keep the layer on Pass-through and do not resize the image.\n` +
@@ -1435,10 +1633,10 @@ body[data-mode="engrave"] .poster-only, body:not([data-mode="engrave"]) .eng-onl
         <ditherMode Value="threshold"/>
         <dpi Value="${dpi}"/>
         <linkDPItoInterval Value="1"/>
-    </CutSetting_Img>
+    </CutSetting_Img>${cutLayer}
     <Shape Type="Bitmap" CutIndex="0" W="${wmm}" H="${hmm}" Gamma="1" Contrast="0" Brightness="0" EnhanceAmount="0" EnhanceRadius="0" EnhanceDenoise="0" File="" SourceHash="0" Data="${data}">
         <XForm>1 0 0 1 ${wmm / 2} ${hmm / 2}</XForm>
-    </Shape>
+    </Shape>${cutShape}
     <Notes ShowOnLoad="1" Notes="${xmlAttr(notes)}"/>
 </LightBurnProject>
 `;
@@ -1791,7 +1989,8 @@ body[data-mode="engrave"] .poster-only, body:not([data-mode="engrave"]) .eng-onl
       applyMaterial(S.material); // restores the material's midtones, sharpening, shadow cap and style
       return;
     }
-    ['blur', 'brightness', 'contrast', 'lines'].forEach((k) => { S[k] = SLIDERS[k].def; syncSlider(k); });
+    ['blur', 'brightness', 'contrast', 'lines', 'lineDensity'].forEach((k) => { S[k] = SLIDERS[k].def; syncSlider(k); });
+    S.hatch = 'shadow'; syncSeg('hatch');
     S.cuts = null; positionCuts();
     scheduleRender();
   });
@@ -1815,7 +2014,7 @@ body[data-mode="engrave"] .poster-only, body:not([data-mode="engrave"]) .eng-onl
     fields.classList.toggle('is-off', !S.msgOn);
     fields.querySelectorAll('input, select, button').forEach((el) => { el.disabled = !S.msgOn; });
   }
-  bindSwitch('msg-on', 'msgOn', syncMsgEnabled);
+  bindSwitch('msg-on', 'msgOn', () => { syncMsgEnabled(); syncShapes(); });
   bindSwitch('msg-caps', 'caps', () => msgText.classList.toggle('caps', S.caps));
   bindSwitch('border-on', 'border');
 
@@ -2022,6 +2221,7 @@ body[data-mode="engrave"] .poster-only, body:not([data-mode="engrave"]) .eng-onl
     buildCutHandles();
     syncInks();
     syncEngUI();
+    syncShapes();
     scheduleRender();
   }
 
@@ -2072,7 +2272,41 @@ body[data-mode="engrave"] .poster-only, body:not([data-mode="engrave"]) .eng-onl
     });
   }
 
+  function buildShapes() {
+    const wrap = $('shapes');
+    SHAPES.forEach((sh) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'shape';
+      b.dataset.id = sh.id;
+      const asp = sh.aspect || 1.3, bw = asp >= 1 ? 30 / asp : 30, bh = asp >= 1 ? 30 : 30 * asp;
+      const ox = (40 - bw) / 2, oy = (40 - bh) / 2;
+      const pts = shapePoints(sh.id, bw, bh).map(([x, y]) => `${(ox + x).toFixed(2)},${(oy + y).toFixed(2)}`).join(' ');
+      b.innerHTML = `<svg viewBox="0 0 40 40" aria-hidden="true"><polygon points="${pts}"/></svg><span>${sh.name}</span>`;
+      b.addEventListener('click', () => { S.shape = sh.id; clampPan(); syncShapes(); scheduleRender(); });
+      wrap.appendChild(b);
+    });
+  }
+  function syncShapes() {
+    const sh = activeShape();
+    document.querySelectorAll('#shapes .shape').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.id === S.shape)));
+    document.querySelector('.seg[data-key="frame"]').classList.toggle('is-off', !!sh.aspect);
+    $('shape-hint').textContent = sh.id === 'none'
+      ? 'Pick a shape to mask the picture. Outside it nothing is engraved.'
+      : sh.aspect ? `The ${sh.name.toLowerCase()} sets the proportions, so the Frame choice is ignored.`
+      : `The ${sh.name.toLowerCase()} follows the Frame proportions.`;
+    $('eng-outline').checked = S.outline;
+    $('eng-cutline').checked = S.cutLine;
+    const hint = $('cut-hint');
+    hint.hidden = !S.cutLine;
+    hint.textContent = sh.id !== 'none' && !S.msgOn
+      ? `A second layer in the .lbrn2 cuts along the ${sh.name.toLowerCase()}. Its speed and power are placeholders.`
+      : 'A second layer in the .lbrn2 cuts the outer rectangle. Switch the message band off to cut along a shape. Its speed and power are placeholders.';
+  }
+
   function buildEngraveInputs() {
+    bindSwitch('eng-outline', 'outline');
+    bindSwitch('eng-cutline', 'cutLine', syncShapes);
     const sel = $('eng-dither');
     DITHERS.forEach((d) => { const o = document.createElement('option'); o.value = d.id; o.textContent = d.name; sel.appendChild(o); });
     sel.addEventListener('change', () => { S.dither = sel.value; syncEngUI(); scheduleRender(); });
@@ -2130,6 +2364,7 @@ body[data-mode="engrave"] .poster-only, body:not([data-mode="engrave"]) .eng-onl
   buildWells();
   buildPresets();
   buildMaterials();
+  buildShapes();
   buildEngraveInputs();
   buildDots('dots-band', 'bandInk');
   buildDots('dots-text', 'textInk');
@@ -2137,6 +2372,7 @@ body[data-mode="engrave"] .poster-only, body:not([data-mode="engrave"]) .eng-onl
   Object.keys(SLIDERS).forEach(syncSlider);
   syncSeg('frame');
   syncSeg('count');
+  syncSeg('hatch');
   syncInks();
   syncMsgEnabled();
   if (location.hash === '#engrave') S.mode = 'engrave'; // open straight into engrave mode
