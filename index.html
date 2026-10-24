@@ -1,237 +1,233 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
-<title>Screenprint Poster Maker</title>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Poster &amp; Engrave</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link id="gf" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Montserrat:wght@900&family=Oswald:wght@700&family=Bebas+Neue&family=Alfa+Slab+One&display=swap">
+<link id="gf" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
 <style>
-/* Layout: controls on the left like a print-shop panel; the live poster pinned on a gridded light table to the right.
-   On phones the poster pins to the top of the screen and the controls scroll beneath it. */
+/* Layout: a card of controls on the left, the live preview pinned on the right.
+   On phones the preview pins to the top and the controls scroll beneath it. */
 :root {
-  --paper: #dde4e7;          /* page ground: cool print-shop grey-blue */
-  --field: #f6f8f8;          /* inputs */
-  --ink: #13263c;            /* navy ink: text, outlines */
-  --ink-soft: #56687b;       /* secondary text */
-  --red: #c3302d;            /* poster red: the one accent */
-  --on-red: #fff8ec;
-  --rule: rgba(19, 38, 60, 0.15);
-  --track: rgba(19, 38, 60, 0.18);
-  --table: #c9d2d7;          /* light table behind the poster */
-  --grid: rgba(19, 38, 60, 0.075);
-  --scrim: rgba(221, 228, 231, 0.9);
-  --shadow: 0 1px 2px rgba(10, 22, 36, 0.2), 0 14px 34px rgba(10, 22, 36, 0.24);
-
-  --font-display: "Archivo", "Helvetica Neue", Arial, sans-serif;   /* used expanded + heavy */
-  --font-body: "Archivo", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  color-scheme: light;
+  --bg: #f4f5f7;
+  --surface: #ffffff;
+  --surface-2: #eef0f3;      /* inputs, segmented tracks */
+  --text: #111827;
+  --muted: #6b7280;
+  --line: rgba(17, 24, 39, 0.1);
+  --accent: #4f46e5;
+  --accent-soft: rgba(79, 70, 229, 0.12);
+  --on-accent: #ffffff;
+  --stage: #e6e8ec;
+  --scrim: rgba(244, 245, 247, 0.9);
+  --shadow: 0 1px 2px rgba(17, 24, 39, 0.06), 0 16px 40px rgba(17, 24, 39, 0.14);
+  --font: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --paper: #0b1622; --field: #0f1d2c; --ink: #efe6d0; --ink-soft: #a2afbd;
-    --red: #e0473f; --on-red: #fff8ec;
-    --rule: rgba(239, 230, 208, 0.14); --track: rgba(239, 230, 208, 0.2);
-    --table: #07101a; --grid: rgba(239, 230, 208, 0.05); --scrim: rgba(11, 22, 34, 0.9);
-    --shadow: 0 1px 2px rgba(0, 0, 0, 0.5), 0 16px 40px rgba(0, 0, 0, 0.6);
     color-scheme: dark;
+    --bg: #0f1115; --surface: #171a21; --surface-2: #20242d; --text: #e7e9ee; --muted: #9aa1ae;
+    --line: rgba(231, 233, 238, 0.1); --accent: #818cf8; --accent-soft: rgba(129, 140, 248, 0.18); --on-accent: #0f1115;
+    --stage: #0b0d11; --scrim: rgba(15, 17, 21, 0.9);
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.5), 0 16px 40px rgba(0, 0, 0, 0.6);
   }
 }
 :root[data-theme="dark"] {
-  --paper: #0b1622; --field: #0f1d2c; --ink: #efe6d0; --ink-soft: #a2afbd;
-  --red: #e0473f; --on-red: #fff8ec;
-  --rule: rgba(239, 230, 208, 0.14); --track: rgba(239, 230, 208, 0.2);
-  --table: #07101a; --grid: rgba(239, 230, 208, 0.05); --scrim: rgba(11, 22, 34, 0.9);
-  --shadow: 0 1px 2px rgba(0, 0, 0, 0.5), 0 16px 40px rgba(0, 0, 0, 0.6);
   color-scheme: dark;
+  --bg: #0f1115; --surface: #171a21; --surface-2: #20242d; --text: #e7e9ee; --muted: #9aa1ae;
+  --line: rgba(231, 233, 238, 0.1); --accent: #818cf8; --accent-soft: rgba(129, 140, 248, 0.18); --on-accent: #0f1115;
+  --stage: #0b0d11; --scrim: rgba(15, 17, 21, 0.9);
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.5), 0 16px 40px rgba(0, 0, 0, 0.6);
 }
 
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
-html, body { background: var(--paper); color: var(--ink); }
+html, body { background: var(--bg); color: var(--text); }
 body {
-  font-family: var(--font-body);
-  font-size: 15px;
-  line-height: 1.45;
+  margin: 0;
   padding-inline: 16px;
-  padding-block: 0;
+  font-family: var(--font);
+  font-size: 14px;
+  line-height: 1.45;
   -webkit-font-smoothing: antialiased;
 }
 button, input, select { font: inherit; color: inherit; }
 button { cursor: pointer; }
-:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 /* ---------- App frame ---------- */
 .app {
   display: grid;
-  grid-template-columns: minmax(300px, 372px) minmax(0, 1fr);
+  grid-template-columns: minmax(300px, 380px) minmax(0, 1fr);
   grid-template-rows: auto 1fr;
   grid-template-areas: "brand stage" "controls stage";
-  column-gap: 28px;
-  max-width: 1480px;
+  column-gap: 24px;
+  max-width: 1440px;
   margin: 0 auto;
-  padding-block: 16px;
+  padding-block: 20px 32px;
 }
 
 /* ---------- Brand ---------- */
-.brand { grid-area: brand; display: grid; gap: 10px; padding-block: 6px 18px; }
-.brand-row { display: flex; align-items: center; gap: 14px; }
-.mark {
-  display: flex; flex-direction: column; flex: none;
-  width: 30px; height: 42px; border-radius: 3px; overflow: hidden;
-  box-shadow: 0 0 0 1px var(--rule);
-}
-.mark i { flex: 1; }
-h1 {
-  margin: 0;
-  font-family: var(--font-display);
-  font-stretch: 125%;
-  font-weight: 850;
-  font-size: 23px;
-  line-height: 0.98;
-  letter-spacing: 0.005em;
-  text-transform: uppercase;
-  text-wrap: balance;
-}
-h1 .kicker {
-  display: block;
-  margin-bottom: 5px;
-  font-size: 11px;
-  font-weight: 750;
-  letter-spacing: 0.24em;
-  color: var(--red);
-}
-.tagline { margin: 0; color: var(--ink-soft); font-size: 14px; max-width: 34ch; }
+.brand { grid-area: brand; padding: 6px 4px 16px; }
+h1 { margin: 0; font-size: 19px; font-weight: 650; letter-spacing: -0.01em; }
+.tagline { margin: 4px 0 0; color: var(--muted); font-size: 13.5px; max-width: 40ch; }
 
 /* ---------- Controls ---------- */
-.controls { grid-area: controls; display: grid; align-content: start; min-width: 0; padding-block: 0 28px; }
+.controls {
+  grid-area: controls;
+  display: grid; align-content: start; min-width: 0;
+  padding: 18px 18px 8px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+}
 .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-  min-height: 46px; padding: 10px 14px;
-  border-radius: 6px; border: 1.5px solid var(--ink);
-  font-family: var(--font-display); font-stretch: 112%; font-weight: 750;
-  font-size: 13px; letter-spacing: 0.07em; text-transform: uppercase;
-  background: transparent; color: var(--ink);
-  transition: transform 0.08s ease, filter 0.15s ease;
+  min-height: 42px; padding: 9px 14px;
+  border-radius: 10px; border: 1px solid var(--line);
+  font-size: 14px; font-weight: 600;
+  background: var(--surface-2); color: var(--text);
+  transition: transform 0.08s ease, filter 0.15s ease, background 0.15s ease;
 }
 .btn:active { transform: translateY(1px); }
-.btn-primary { background: var(--red); border-color: var(--red); color: var(--on-red); }
+.btn-primary { background: var(--accent); border-color: transparent; color: var(--on-accent); }
 .btn-primary:hover { filter: brightness(1.06); }
-.btn-outline:hover { background: var(--rule); }
+.btn-outline:hover { background: var(--line); }
 .btn[aria-busy="true"] { opacity: 0.7; cursor: progress; }
-.hint { margin: 0; font-size: 13px; color: var(--ink-soft); }
-.actions + .hint { margin-top: 10px; margin-bottom: 18px; }
+.hint { margin: 0; font-size: 12.5px; color: var(--muted); }
+.actions + .hint, .actions ~ .hint { margin-top: 10px; margin-bottom: 18px; }
 
-.group { display: grid; gap: 16px; padding-block: 18px 20px; border-top: 1px solid var(--rule); min-width: 0; }
+.group { display: grid; gap: 14px; padding-block: 18px; border-top: 1px solid var(--line); min-width: 0; }
 .group-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-.group h2 {
-  margin: 0;
-  font-family: var(--font-display); font-stretch: 118%; font-weight: 800;
-  font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase;
-}
+.group h2 { margin: 0; font-size: 12px; font-weight: 650; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
 .link {
   background: none; border: 0; padding: 2px 0;
-  font-size: 13px; font-weight: 600; color: var(--ink-soft);
-  text-decoration: underline; text-decoration-color: var(--rule); text-underline-offset: 3px;
+  font-size: 12.5px; font-weight: 550; color: var(--accent);
 }
-.link:hover { color: var(--ink); text-decoration-color: currentColor; }
+.link:hover { text-decoration: underline; }
 
 .field { display: grid; gap: 8px; min-width: 0; }
 .field-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
-.label { font-size: 14px; font-weight: 600; }
+.label { font-size: 13.5px; font-weight: 550; }
+.mode { margin-bottom: 14px; }
 
 /* Sliders */
-.slider { display: grid; grid-template-columns: 1fr auto; align-items: baseline; column-gap: 12px; row-gap: 4px; }
-.slider label { font-size: 14px; font-weight: 600; user-select: none; -webkit-user-select: none; }
-.slider output { font-size: 13px; color: var(--ink-soft); font-variant-numeric: tabular-nums; font-stretch: 90%; }
+.slider { display: grid; grid-template-columns: 1fr auto; align-items: baseline; column-gap: 12px; row-gap: 2px; }
+.slider label { font-size: 13.5px; font-weight: 550; user-select: none; -webkit-user-select: none; }
+.slider output { font-size: 12.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
 .slider input { grid-column: 1 / -1; }
 
 input[type="range"] {
   --p0: 0; --p1: 0;
   -webkit-appearance: none; appearance: none;
-  width: 100%; height: 24px; margin: 0;
+  width: 100%; height: 22px; margin: 0;
   background: transparent; cursor: pointer;
 }
 input[type="range"]::-webkit-slider-runnable-track {
-  height: 6px; border-radius: 3px;
+  height: 4px; border-radius: 2px;
   background: linear-gradient(to right,
-    var(--track) 0 calc(9px + (100% - 18px) * var(--p0)),
-    var(--red) 0 calc(9px + (100% - 18px) * var(--p1)),
-    var(--track) 0);
+    var(--line) 0 calc(8px + (100% - 16px) * var(--p0)),
+    var(--accent) 0 calc(8px + (100% - 16px) * var(--p1)),
+    var(--line) 0);
 }
 input[type="range"]::-moz-range-track {
-  height: 6px; border-radius: 3px;
+  height: 4px; border-radius: 2px;
   background: linear-gradient(to right,
-    var(--track) 0 calc(9px + (100% - 18px) * var(--p0)),
-    var(--red) 0 calc(9px + (100% - 18px) * var(--p1)),
-    var(--track) 0);
+    var(--line) 0 calc(8px + (100% - 16px) * var(--p0)),
+    var(--accent) 0 calc(8px + (100% - 16px) * var(--p1)),
+    var(--line) 0);
 }
 input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none; appearance: none;
-  width: 18px; height: 18px; margin-top: -6px; border-radius: 50%;
-  background: var(--ink); border: 3px solid var(--paper);
-  box-shadow: 0 0 0 1px var(--ink);
+  width: 16px; height: 16px; margin-top: -6px; border-radius: 50%;
+  background: var(--surface); border: 1px solid var(--line);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 input[type="range"]::-moz-range-thumb {
-  width: 18px; height: 18px; box-sizing: border-box; border-radius: 50%;
-  background: var(--ink); border: 3px solid var(--paper);
-  box-shadow: 0 0 0 1px var(--ink);
+  width: 16px; height: 16px; box-sizing: border-box; border-radius: 50%;
+  background: var(--surface); border: 1px solid var(--line);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 input[type="range"]:focus-visible { outline: none; }
-input[type="range"]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 1px var(--ink), 0 0 0 5px var(--track); }
-input[type="range"]:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 1px var(--ink), 0 0 0 5px var(--track); }
+input[type="range"]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px var(--accent-soft); }
+input[type="range"]:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 4px var(--accent-soft); }
 
-/* Segmented buttons */
+/* Segmented controls */
 .seg {
-  display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr);
-  border: 1.5px solid var(--ink); border-radius: 6px; overflow: hidden;
+  display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 2px;
+  padding: 3px; border-radius: 10px; background: var(--surface-2);
 }
 .seg button {
-  border: 0; background: transparent; padding: 9px 6px;
-  font-size: 13px; font-weight: 650; line-height: 1.1;
+  border: 0; background: transparent; padding: 7px 6px; border-radius: 8px;
+  font-size: 13px; font-weight: 550; line-height: 1.1; color: var(--muted);
 }
-.seg button + button { border-left: 1.5px solid var(--ink); }
-.seg button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
-.seg button:focus-visible { outline-offset: -4px; outline-color: var(--red); }
+.seg button[aria-pressed="true"] { background: var(--surface); color: var(--text); box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08), 0 0 0 1px var(--line); }
+.seg button:focus-visible { outline-offset: -2px; }
+.seg.is-off { opacity: 0.4; pointer-events: none; }
 
 /* Ink wells */
 .inks { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
 .well { display: grid; gap: 6px; min-width: 0; transition: opacity 0.15s ease; }
 .chip {
   position: relative; display: block; width: 100%; max-width: 100%;
-  aspect-ratio: 1 / 1.05; border-radius: 6px;
+  aspect-ratio: 1 / 1; border-radius: 10px;
   background: var(--c, #888);
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.14);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1);
   cursor: pointer;
 }
 .chip input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; border: 0; padding: 0; cursor: pointer; }
-.chip:focus-within { outline: 2px solid var(--ink); outline-offset: 2px; }
-.well-name { font-size: 12px; font-weight: 650; line-height: 1.2; }
-.well-name small { display: block; font-size: 11px; font-weight: 500; color: var(--ink-soft); }
+.chip:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+.well-name { font-size: 12px; font-weight: 550; line-height: 1.2; }
+.well-name small { display: block; font-size: 11px; font-weight: 400; color: var(--muted); }
 .hex {
-  width: 100%; min-width: 0; padding: 4px 5px;
-  font-family: var(--font-mono); font-size: 11.5px; letter-spacing: 0.02em; text-transform: uppercase;
-  background: var(--field); border: 1px solid var(--rule); border-radius: 4px;
+  width: 100%; min-width: 0; padding: 5px 6px;
+  font-family: var(--mono); font-size: 11.5px; text-transform: uppercase;
+  background: var(--surface-2); border: 1px solid transparent; border-radius: 8px;
 }
+.hex:focus { border-color: var(--accent); outline: none; }
 .well.off .chip { opacity: 0.3; }
 .well.off .well-name, .well.off .hex { opacity: 0.55; }
 
+/* Preset, material and shape tiles */
 .presets { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
 .preset {
-  display: grid; gap: 6px; padding: 6px 6px 7px;
-  border: 1px solid var(--rule); border-radius: 6px; background: transparent;
-  font-size: 12px; font-weight: 650; text-align: left;
+  display: grid; gap: 6px; padding: 7px 7px 8px;
+  border: 1px solid var(--line); border-radius: 10px; background: transparent;
+  font-size: 12px; font-weight: 550; text-align: left;
 }
-.preset .bar { display: grid; grid-template-columns: repeat(4, 1fr); height: 14px; border-radius: 3px; overflow: hidden; }
-.preset:hover { border-color: var(--ink-soft); }
-.preset[aria-pressed="true"] { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+.preset .bar { display: grid; grid-template-columns: repeat(4, 1fr); height: 14px; border-radius: 5px; overflow: hidden; }
+.preset .bar.two { grid-template-columns: 1fr 1fr; }
+.preset .bar.two i:last-child {
+  background-image: radial-gradient(circle, var(--d) 0.9px, transparent 1.5px);
+  background-size: 4px 4px;
+}
+.preset:hover { border-color: var(--muted); }
+.preset[aria-pressed="true"] { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
 .row-btns { display: flex; flex-wrap: wrap; gap: 8px; }
 .small-btn {
-  padding: 7px 12px; border-radius: 6px; border: 1px solid var(--rule); background: transparent;
-  font-size: 13px; font-weight: 600;
+  padding: 7px 12px; border-radius: 8px; border: 1px solid transparent; background: var(--surface-2);
+  font-size: 12.5px; font-weight: 550;
 }
-.small-btn:hover { border-color: var(--ink-soft); }
+.small-btn:hover { border-color: var(--muted); }
+.shapes { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.shape {
+  display: grid; justify-items: center; gap: 4px; padding: 8px 4px 6px;
+  border: 1px solid var(--line); border-radius: 10px; background: transparent;
+  font-size: 12px; font-weight: 550; line-height: 1.1;
+}
+.shape svg { width: 28px; height: 28px; display: block; fill: var(--muted); }
+.shape:hover { border-color: var(--muted); }
+.shape[aria-pressed="true"] { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.shape[aria-pressed="true"] svg { fill: var(--accent); }
+.mat-note { min-height: 2.6em; }
 
 /* Tone split: histogram + draggable boundaries */
-.levels { position: relative; height: 78px; touch-action: none; user-select: none; -webkit-user-select: none; }
+.levels { position: relative; height: 76px; touch-action: none; user-select: none; -webkit-user-select: none; }
 .levels canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 .cut {
   position: absolute; top: 0; bottom: 0; width: 28px; margin-left: -14px;
@@ -239,204 +235,150 @@ input[type="range"]:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 1px var(
 }
 .cut::before {
   content: ""; position: absolute; left: 50%; top: 0; bottom: 8px; width: 2px; margin-left: -1px;
-  background: var(--ink);
+  background: var(--text);
 }
 .cut::after {
-  content: ""; position: absolute; left: 50%; bottom: 0; width: 18px; height: 18px; margin-left: -9px;
-  border-radius: 50%; background: var(--ink); border: 3px solid var(--paper); box-sizing: border-box;
-  box-shadow: 0 0 0 1px var(--ink);
+  content: ""; position: absolute; left: 50%; bottom: 0; width: 16px; height: 16px; margin-left: -8px;
+  border-radius: 50%; background: var(--surface); border: 1px solid var(--line); box-sizing: border-box;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 .cut:focus-visible { outline: none; }
-.cut:focus-visible::after { box-shadow: 0 0 0 1px var(--ink), 0 0 0 5px var(--track); }
+.cut:focus-visible::after { box-shadow: 0 0 0 4px var(--accent-soft); }
 
-/* Message */
-.msg-input {
-  width: 100%; min-width: 0; padding: 10px 12px;
-  font-family: var(--font-display); font-stretch: 115%; font-weight: 800; font-size: 20px; letter-spacing: 0.04em;
-  background: var(--field); border: 1.5px solid var(--ink); border-radius: 6px;
-}
-.msg-input.caps { text-transform: uppercase; }
-select {
+/* Inputs */
+select, .num {
   width: 100%; min-width: 0; padding: 9px 10px;
-  background: var(--field); border: 1px solid var(--rule); border-radius: 6px;
-  font-size: 14px; font-weight: 600;
+  background: var(--surface-2); border: 1px solid transparent; border-radius: 10px;
+  font-size: 13.5px; font-weight: 500;
 }
-.dots { display: flex; gap: 8px; align-items: center; }
-.dot {
-  width: 30px; height: 30px; border-radius: 50%; padding: 0; flex: none;
-  background: var(--c, #888); border: 3px solid var(--paper);
-  box-shadow: 0 0 0 1px var(--rule);
+.num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+select:focus, .num:focus { border-color: var(--accent); outline: none; }
+.pair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.readout {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px 14px;
+  font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums;
 }
-.dot[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--ink); }
-.pair { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-.msg-fields { display: grid; gap: 16px; transition: opacity 0.15s ease; }
-.msg-fields.is-off { opacity: 0.4; pointer-events: none; }
+.readout b { display: block; color: var(--text); font-weight: 600; font-size: 14px; }
+.eng-tip { padding: 10px 12px; border-radius: 10px; background: var(--accent-soft); font-size: 12.5px; color: var(--text); }
+.eng-tip b { font-weight: 600; }
 
-.switch { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 14px; font-weight: 600; cursor: pointer; }
+.switch { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 13.5px; font-weight: 550; cursor: pointer; }
 .switch input { position: absolute; opacity: 0; width: 1px; height: 1px; pointer-events: none; }
 .switch .track {
-  position: relative; flex: none; width: 40px; height: 24px; border-radius: 12px;
-  background: var(--track); transition: background 0.15s ease;
+  position: relative; flex: none; width: 38px; height: 22px; border-radius: 11px;
+  background: var(--line); transition: background 0.15s ease;
 }
 .switch .track::after {
-  content: ""; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%;
-  background: var(--paper); transition: transform 0.15s ease;
+  content: ""; position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; border-radius: 50%;
+  background: var(--surface); box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2); transition: transform 0.15s ease;
 }
-.switch input:checked + .track { background: var(--red); }
+.switch input:checked + .track { background: var(--accent); }
 .switch input:checked + .track::after { transform: translateX(16px); }
-.switch input:focus-visible + .track { outline: 2px solid var(--ink); outline-offset: 2px; }
+.switch input:focus-visible + .track { outline: 2px solid var(--accent); outline-offset: 2px; }
 
-/* ---------- Stage (light table) ---------- */
+body[data-mode="engrave"] .poster-only, body:not([data-mode="engrave"]) .eng-only { display: none !important; }
+
+/* ---------- Stage ---------- */
 .stage {
   grid-area: stage;
   align-self: start;
-  position: sticky; top: 16px;
-  height: calc(100vh - 32px);
-  height: calc(100svh - 32px);
+  position: sticky; top: 20px;
+  height: calc(100vh - 52px);
+  height: calc(100svh - 52px);
   min-height: 420px;
   display: grid; grid-template-rows: minmax(0, 1fr) auto;
-  border-radius: 12px;
-  background-color: var(--table);
-  background-image:
-    linear-gradient(var(--grid) 1px, transparent 1px),
-    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
-  background-size: 28px 28px;
-  background-position: center;
+  border-radius: 16px;
+  border: 1px solid var(--line);
+  background: var(--stage);
   overflow: hidden;
 }
-.mat { position: relative; display: grid; place-items: center; min-height: 0; padding: 44px 44px 14px; }
+.mat { position: relative; display: grid; place-items: center; min-height: 0; padding: 40px 40px 12px; }
 .sheet { position: relative; }
 #poster {
   display: block; width: 100%; height: 100%;
+  border-radius: 3px;
   box-shadow: var(--shadow);
   cursor: grab; touch-action: none;
 }
 #poster.dragging { cursor: grabbing; }
-#poster:focus-visible { outline: 2px solid var(--red); outline-offset: 6px; }
-
-/* Printer's crop marks at the poster corners */
-.crop { position: absolute; width: 0; height: 0; pointer-events: none; }
-.crop::before, .crop::after { content: ""; position: absolute; background: var(--ink-soft); opacity: 0.7; }
-.crop::before { width: 1px; height: 16px; }
-.crop::after { width: 16px; height: 1px; }
-.crop.tl { left: 0; top: 0; }       .crop.tl::before { left: 0; bottom: 8px; }  .crop.tl::after { right: 8px; top: 0; }
-.crop.tr { right: 0; top: 0; }      .crop.tr::before { right: 0; bottom: 8px; } .crop.tr::after { left: 8px; top: 0; }
-.crop.bl { left: 0; bottom: 0; }    .crop.bl::before { left: 0; top: 8px; }     .crop.bl::after { right: 8px; bottom: 0; }
-.crop.br { right: 0; bottom: 0; }   .crop.br::before { right: 0; top: 8px; }    .crop.br::after { left: 8px; bottom: 0; }
-
+#poster.shaped { border-radius: 0; box-shadow: none; filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.25)) drop-shadow(0 14px 30px rgba(0, 0, 0, 0.3)); }
+.switch.is-off { opacity: 0.4; pointer-events: none; }
+#poster:focus-visible { outline: 2px solid var(--accent); outline-offset: 6px; }
 .stage-foot {
-  display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 6px 12px;
-  padding: 8px 16px 16px;
-  font-size: 12px; color: var(--ink-soft); font-variant-numeric: tabular-nums;
+  display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 6px 10px;
+  padding: 8px 16px 14px;
+  font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums;
 }
-.colorbar { display: flex; box-shadow: 0 0 0 1px var(--rule); }
-.colorbar i { width: 14px; height: 14px; }
+.colorbar { display: flex; border-radius: 4px; overflow: hidden; box-shadow: 0 0 0 1px var(--line); }
+.colorbar i { width: 12px; height: 12px; }
 .sample-pill {
   position: absolute; top: 12px; left: 12px; z-index: 2;
-  padding: 6px 11px; border-radius: 999px; border: 1px solid var(--rule);
-  background: var(--scrim); color: var(--ink);
-  font-size: 12px; font-weight: 650;
+  padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line);
+  background: var(--surface); color: var(--text);
+  font-size: 12px; font-weight: 550;
 }
-.sample-pill:hover { border-color: var(--ink-soft); }
+.sample-pill:hover { border-color: var(--muted); }
 
 /* ---------- Overlays ---------- */
 .drop {
   position: fixed; inset: 0; z-index: 50;
   display: grid; place-items: center;
   background: var(--scrim);
-  border: 3px dashed var(--ink);
-  font-family: var(--font-display); font-stretch: 120%; font-weight: 850;
-  font-size: clamp(20px, 4vw, 34px); letter-spacing: 0.04em; text-transform: uppercase;
+  border: 2px dashed var(--accent);
+  font-size: clamp(18px, 3vw, 26px); font-weight: 600;
   pointer-events: none;
 }
 .toast {
   position: fixed; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); z-index: 60;
   transform: translate(-50%, 12px); opacity: 0;
-  max-width: calc(100% - 32px); padding: 10px 16px; border-radius: 8px;
-  background: var(--ink); color: var(--paper);
-  font-size: 14px; font-weight: 600;
+  max-width: calc(100% - 32px); padding: 10px 16px; border-radius: 10px;
+  background: var(--text); color: var(--bg);
+  font-size: 13.5px; font-weight: 550;
   transition: opacity 0.18s ease, transform 0.18s ease; pointer-events: none;
 }
 .toast.show { opacity: 1; transform: translate(-50%, 0); }
 .saveview { position: fixed; inset: 0; z-index: 70; display: grid; place-items: center; padding: 16px; background: var(--scrim); }
 .saveview-card {
   display: grid; gap: 12px; justify-items: center; width: min(440px, 100%); max-height: 100%;
-  padding: 18px; border-radius: 12px; background: var(--paper); box-shadow: var(--shadow);
+  padding: 18px; border-radius: 16px; background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow);
 }
-.saveview-card h3 { margin: 0; font-family: var(--font-display); font-stretch: 118%; font-weight: 800; font-size: 16px; letter-spacing: 0.08em; text-transform: uppercase; }
-.saveview-card p { margin: 0; font-size: 14px; color: var(--ink-soft); text-align: center; }
+.saveview-card h3 { margin: 0; font-size: 15px; font-weight: 600; }
+.saveview-card p { margin: 0; font-size: 13.5px; color: var(--muted); text-align: center; }
 .saveview-card img { max-width: 100%; max-height: 58vh; box-shadow: var(--shadow); }
-
-/* ---------- Mode switch and engraving controls ---------- */
-.mode { margin-bottom: 14px; }
-body[data-mode="engrave"] .poster-only, body:not([data-mode="engrave"]) .eng-only { display: none !important; }
-.num {
-  width: 100%; min-width: 0; padding: 9px 10px;
-  font-family: var(--font-mono); font-size: 14px; font-variant-numeric: tabular-nums;
-  background: var(--field); border: 1px solid var(--rule); border-radius: 6px;
-}
-.readout {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 8px 14px;
-  font-size: 12.5px; color: var(--ink-soft); font-variant-numeric: tabular-nums;
-}
-.readout b { display: block; color: var(--ink); font-weight: 650; font-size: 14px; }
-.preset .bar.two { grid-template-columns: 1fr 1fr; }
-.preset .bar.two i:last-child {
-  background-image: radial-gradient(circle, var(--d) 0.9px, transparent 1.5px);
-  background-size: 4px 4px;
-}
-.mat-note { min-height: 2.6em; }
-.eng-tip { padding: 10px 12px; border: 1px solid var(--rule); border-radius: 6px; font-size: 13px; color: var(--ink-soft); }
-.eng-tip b { color: var(--ink); }
-
-/* Engraving shapes */
-.shapes { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
-.shape {
-  display: grid; justify-items: center; gap: 4px; padding: 8px 4px 6px;
-  border: 1px solid var(--rule); border-radius: 6px; background: transparent;
-  font-size: 12px; font-weight: 650; line-height: 1.1;
-}
-.shape svg { width: 30px; height: 30px; display: block; fill: var(--ink-soft); }
-.shape:hover { border-color: var(--ink-soft); }
-.shape[aria-pressed="true"] { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
-.shape[aria-pressed="true"] svg { fill: var(--ink); }
-.seg.is-off { opacity: 0.4; pointer-events: none; }
 
 /* ---------- Phones ---------- */
 @media (max-width: 860px) {
   .app { display: flex; flex-direction: column; gap: 0; padding-block: 12px; }
-  .brand { padding-block: 4px 14px; }
+  .brand { padding: 4px 4px 12px; }
   .stage {
     align-self: stretch;
     top: calc(env(safe-area-inset-top, 0px) + 8px);
     z-index: 5;
     height: 54vh; height: 54svh; min-height: 300px;
-    box-shadow: 0 -8px 0 var(--paper);
-    margin-bottom: 18px;
+    box-shadow: 0 -8px 0 var(--bg);
+    margin-bottom: 16px;
   }
-  .mat { padding: 30px 30px 6px; }
+  .mat { padding: 28px 28px 6px; }
   .stage-foot { padding: 6px 12px 10px; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition: none !important; animation: none !important; }
 }
 </style>
+</head>
+<body>
 
 <div class="app">
   <header class="brand">
-    <div class="brand-row">
-      <div class="mark" id="mark" aria-hidden="true"></div>
-      <h1><span class="kicker">Screenprint</span>Poster Maker</h1>
-    </div>
-    <p class="tagline" id="tagline">Turn a photo into a bold poster printed in two to four inks.</p>
+    <h1>Poster &amp; Engrave</h1>
+    <p class="tagline" id="tagline">Turn a photo into a flat-ink poster or a laser-ready engraving.</p>
   </header>
 
-  <main class="stage" id="stage" aria-label="Poster preview">
+  <main class="stage" id="stage" aria-label="Preview">
     <button type="button" class="sample-pill" id="sample-pill">Sample photo · Import your own</button>
     <div class="mat" id="mat">
       <div class="sheet" id="sheet">
-        <canvas id="poster" tabindex="0" role="img" aria-label="Poster preview. Drag it, or use the arrow keys, to move the photo."></canvas>
-        <span class="crop tl"></span><span class="crop tr"></span><span class="crop bl"></span><span class="crop br"></span>
+        <canvas id="poster" tabindex="0" role="img" aria-label="Preview. Drag it, or use the arrow keys, to move the photo."></canvas>
       </div>
     </div>
     <div class="stage-foot">
@@ -449,7 +391,7 @@ body[data-mode="engrave"] .poster-only, body:not([data-mode="engrave"]) .eng-onl
     <div class="field mode">
       <span class="label" id="lbl-mode">Make a</span>
       <div class="seg" role="group" aria-labelledby="lbl-mode" data-key="mode">
-        <button type="button" data-value="poster" aria-pressed="true">Screenprint poster</button>
+        <button type="button" data-value="poster" aria-pressed="true">Poster</button>
         <button type="button" data-value="engrave" aria-pressed="false">Laser engraving</button>
       </div>
     </div>
@@ -470,9 +412,10 @@ body[data-mode="engrave"] .poster-only, body:not([data-mode="engrave"]) .eng-onl
       <div class="field">
         <span class="label" id="lbl-frame">Frame</span>
         <div class="seg" role="group" aria-labelledby="lbl-frame" data-key="frame">
-          <button type="button" data-value="poster" aria-pressed="true">Poster</button>
+          <button type="button" data-value="portrait" aria-pressed="true">Portrait</button>
           <button type="button" data-value="square" aria-pressed="false">Square</button>
-          <button type="button" data-value="photo" aria-pressed="false">Photo shape</button>
+          <button type="button" data-value="landscape" aria-pressed="false">Landscape</button>
+          <button type="button" data-value="photo" aria-pressed="false">Photo</button>
         </div>
       </div>
       <div class="field eng-only">
@@ -481,8 +424,19 @@ body[data-mode="engrave"] .poster-only, body:not([data-mode="engrave"]) .eng-onl
         <p class="hint" id="shape-hint"></p>
       </div>
       <label class="switch eng-only" for="eng-outline"><span>Engrave an outline</span><input type="checkbox" id="eng-outline"><span class="track" aria-hidden="true"></span></label>
-      <label class="switch eng-only" for="eng-cutline"><span>Cut line in the LightBurn file</span><input type="checkbox" id="eng-cutline"><span class="track" aria-hidden="true"></span></label>
+      <label class="switch eng-only" for="eng-cutline"><span>Cut out the piece (LightBurn file)</span><input type="checkbox" id="eng-cutline" checked><span class="track" aria-hidden="true"></span></label>
       <p class="hint eng-only" id="cut-hint" hidden></p>
+      <label class="switch eng-only" for="eng-hole"><span>Keychain hole</span><input type="checkbox" id="eng-hole"><span class="track" aria-hidden="true"></span></label>
+      <div class="pair eng-only" id="hole-fields" hidden>
+        <div class="slider" data-key="holeMm">
+          <label for="s-holeMm">Hole size</label><output id="o-holeMm" for="s-holeMm">4 mm</output>
+          <input type="range" id="s-holeMm" min="2" max="10" step="0.5" value="4">
+        </div>
+        <div class="slider" data-key="holeX">
+          <label for="s-holeX">Hole position</label><output id="o-holeX" for="s-holeX">50%</output>
+          <input type="range" id="s-holeX" min="0" max="100" step="1" value="50">
+        </div>
+      </div>
       <div class="slider" data-key="rotation">
         <label for="s-rotation">Rotation</label><output id="o-rotation" for="s-rotation">0°</output>
         <input type="range" id="s-rotation" min="-180" max="180" step="1" value="0">
@@ -491,7 +445,8 @@ body[data-mode="engrave"] .poster-only, body:not([data-mode="engrave"]) .eng-onl
         <label for="s-zoom">Zoom</label><output id="o-zoom" for="s-zoom">100%</output>
         <input type="range" id="s-zoom" min="50" max="400" step="1" value="100">
       </div>
-      <p class="hint">Drag the poster to move the photo inside the frame.</p>
+      <label class="switch" for="border-on" id="border-row"><span>Margin</span><input type="checkbox" id="border-on" checked><span class="track" aria-hidden="true"></span></label>
+      <p class="hint">Drag the preview to move the photo inside the frame.</p>
     </section>
 
     <section class="group poster-only" aria-labelledby="h-inks">
@@ -511,7 +466,7 @@ body[data-mode="engrave"] .poster-only, body:not([data-mode="engrave"]) .eng-onl
       </div>
       <div class="inks" id="inks"></div>
       <div class="field">
-        <span class="label">Presets</span>
+        <span class="label">Palettes</span>
         <div class="presets" id="presets"></div>
       </div>
       <div class="row-btns">
@@ -646,60 +601,16 @@ body[data-mode="engrave"] .poster-only, body:not([data-mode="engrave"]) .eng-onl
       <p class="hint">Speed and power are only starting values written into the LightBurn layer. Every laser and material differs, so run a test on scrap first.</p>
       <div class="eng-tip"><b>In LightBurn:</b> use <b>File → Open</b> for the .lbrn2 (Import drops the layer settings), keep the image layer on <b>Pass-through</b>, and do not resize the image. Each pixel is already one laser dot at the chosen resolution, so resizing changes the dot pitch and blurs the dither.</div>
     </section>
-
-    <section class="group" aria-labelledby="h-msg">
-      <div class="group-head">
-        <h2 id="h-msg">Message</h2>
-      </div>
-      <label class="switch" for="msg-on"><span>Show message band</span><input type="checkbox" id="msg-on" checked><span class="track" aria-hidden="true"></span></label>
-      <div class="msg-fields" id="msg-fields">
-        <input type="text" class="msg-input caps" id="msg-text" value="HOPE" maxlength="28" placeholder="Your word" autocomplete="off" spellcheck="false" aria-label="Message text">
-        <div class="pair">
-          <div class="field">
-            <label class="label" for="msg-font">Typeface</label>
-            <select id="msg-font">
-              <option value="montserrat">Montserrat Black</option>
-              <option value="oswald">Oswald Bold</option>
-              <option value="bebas">Bebas Neue</option>
-              <option value="slab">Alfa Slab One</option>
-            </select>
-          </div>
-          <div class="field">
-            <span class="label">&nbsp;</span>
-            <label class="switch" for="msg-caps"><span>All caps</span><input type="checkbox" id="msg-caps" checked><span class="track" aria-hidden="true"></span></label>
-          </div>
-        </div>
-        <div class="slider" data-key="msgSize">
-          <label for="s-msgSize">Band height</label><output id="o-msgSize" for="s-msgSize">100%</output>
-          <input type="range" id="s-msgSize" min="50" max="170" step="1" value="100">
-        </div>
-        <div class="slider" data-key="msgSpacing">
-          <label for="s-msgSpacing">Letter spacing</label><output id="o-msgSpacing" for="s-msgSpacing">6</output>
-          <input type="range" id="s-msgSpacing" min="-6" max="40" step="1" value="6">
-        </div>
-        <div class="pair">
-          <div class="field">
-            <span class="label" id="lbl-band">Band ink</span>
-            <div class="dots" id="dots-band" role="group" aria-labelledby="lbl-band"></div>
-          </div>
-          <div class="field">
-            <span class="label" id="lbl-text">Letter ink</span>
-            <div class="dots" id="dots-text" role="group" aria-labelledby="lbl-text"></div>
-          </div>
-        </div>
-      </div>
-      <label class="switch" for="border-on"><span>Paper border</span><input type="checkbox" id="border-on" checked><span class="track" aria-hidden="true"></span></label>
-    </section>
   </div>
 </div>
 
-<div class="drop" id="drop" hidden>Drop to print this photo</div>
+<div class="drop" id="drop" hidden>Drop to use this photo</div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <div class="saveview" id="saveview" hidden>
   <div class="saveview-card" role="dialog" aria-modal="true" aria-labelledby="sv-title">
-    <h3 id="sv-title">Save your poster</h3>
+    <h3 id="sv-title">Save your image</h3>
     <p>Right-click the image and choose Save Image As. On a phone, press and hold it.</p>
-    <img id="sv-img" alt="Your finished poster">
+    <img id="sv-img" alt="Your finished image">
     <button type="button" class="btn btn-outline" id="sv-close">Close</button>
   </div>
 </div>
@@ -717,27 +628,20 @@ body[data-mode="engrave"] .poster-only, body:not([data-mode="engrave"]) .eng-onl
 
   // Ink sets are ordered darkest to lightest: shadow, dark, light, highlight.
   const PRESETS = [
-    { id: 'classic',   name: 'Classic',   inks: ['#00304E', '#D71A21', '#71969F', '#FCE4A8'] },
-    { id: 'newsprint', name: 'Newsprint', inks: ['#161616', '#4D4D4D', '#A2A2A2', '#F1EFE8'] },
-    { id: 'riso',      name: 'Riso',      inks: ['#22378F', '#FF48B0', '#FFE800', '#F7F3E8'] },
-    { id: 'sunset',    name: 'Sunset',    inks: ['#2B1640', '#C2185B', '#F57C00', '#FFE3A3'] },
-    { id: 'forest',    name: 'Forest',    inks: ['#11291E', '#2F6B3E', '#9BBF7A', '#F0F1D8'] },
-    { id: 'harbour',   name: 'Harbour',   inks: ['#0B2545', '#13608A', '#8DB7CF', '#EEF4F2'] },
+    { id: 'indigo', name: 'Indigo', inks: ['#1E1B4B', '#4F46E5', '#A5B4FC', '#F5F3FF'] },
+    { id: 'mono',   name: 'Mono',   inks: ['#111111', '#4A4A4A', '#A3A3A3', '#F5F5F4'] },
+    { id: 'riso',   name: 'Riso',   inks: ['#22378F', '#FF48B0', '#FFE800', '#F7F3E8'] },
+    { id: 'ember',  name: 'Ember',  inks: ['#2B1640', '#C2185B', '#F57C00', '#FFE3A3'] },
+    { id: 'forest', name: 'Forest', inks: ['#11291E', '#2F6B3E', '#9BBF7A', '#F0F1D8'] },
+    { id: 'ocean',  name: 'Ocean',  inks: ['#0B2545', '#13608A', '#8DB7CF', '#EEF4F2'] },
   ];
   const SLOT_NAMES = ['Shadow', 'Dark', 'Light', 'Highlight'];
   // Which of the four ink slots are printed for each ink count.
   // Shadow and highlight are always used; middle inks add detail.
   const SLOTS_FOR = { 2: [0, 3], 3: [0, 1, 3], 4: [0, 1, 2, 3] };
 
-  const FONTS = {
-    montserrat: { family: '"Montserrat"',    fallback: '"Arial Black", "Helvetica Neue", Arial, sans-serif', weight: 900 },
-    oswald:     { family: '"Oswald"',        fallback: '"Arial Narrow", Impact, sans-serif',              weight: 700 },
-    bebas:      { family: '"Bebas Neue"',    fallback: 'Impact, "Arial Narrow", sans-serif',              weight: 400 },
-    slab:       { family: '"Alfa Slab One"', fallback: 'Rockwell, "Roboto Slab", Georgia, serif',          weight: 400 },
-  };
-
   const signed = (v) => (v > 0 ? `+${v}` : v < 0 ? `−${Math.abs(v)}` : '0');
-  // `from` is where the red fill starts (the neutral value); defaults to the slider's minimum.
+  // `from` is where the slider's filled part starts (the neutral value); defaults to its minimum.
   const SLIDERS = {
     rotation:   { def: 0,   from: 0,   fmt: (v) => (v < 0 ? `−${Math.abs(v)}°` : `${v}°`) },
     zoom:       { def: 100, from: 100, fmt: (v) => `${v}%` },
@@ -746,8 +650,6 @@ body[data-mode="engrave"] .poster-only, body:not([data-mode="engrave"]) .eng-onl
     contrast:   { def: 0,   from: 0,   fmt: signed },
     lines:      { def: 45,  fmt: String },
     lineDensity:{ def: 80,  fmt: (v) => `${v} lines` },
-    msgSize:    { def: 100, fmt: (v) => `${v}%` },
-    msgSpacing: { def: 6,   from: 0,   fmt: signed },
     // Engraving (the material preset sets eGamma, eSharpen and eMaxBurn)
     eBrightness: { def: 0,  from: 0, fmt: signed },
     eContrast:   { def: 0,  from: 0, fmt: signed },
@@ -758,10 +660,12 @@ body[data-mode="engrave"] .poster-only, body:not([data-mode="engrave"]) .eng-onl
     eMinBurn:    { def: 0,  fmt: (v) => `${v}%` },
     eCell:       { def: 6,  fmt: (v) => `${v} dots` },
     eLines:      { def: 45, fmt: String },
+    holeMm:      { def: 4,  fmt: (v) => `${v} mm` },
+    holeX:       { def: 50, fmt: (v) => `${v}%` },
   };
 
   const EXPORT_LONG_SIDE = 2400; // px on the long side of the downloaded PNG
-  const FRAME_ASPECT = { poster: 1.38, square: 1 }; // image height / width
+  const FRAME_ASPECT = { portrait: 1.25, square: 1, landscape: 0.8 }; // image height / width
 
   /* ---- Laser engraving ----
      Materials describe how a finished engraving looks (for the preview) and how
@@ -831,17 +735,16 @@ body[data-mode="engrave"] .poster-only, body:not([data-mode="engrave"]) .eng-onl
      ===================================================================== */
 
   const S = {
-    frame: 'poster', rotation: 0, zoom: 100, panX: 0, panY: 0,
+    frame: 'portrait', rotation: 0, zoom: 100, panX: 0, panY: 0,
     count: 4, inks: PRESETS[0].inks.slice(),
     blur: 30, brightness: 0, contrast: 0, lines: 45, lineDensity: 80, hatch: 'shadow', cuts: null,
-    msgOn: true, msgText: 'HOPE', caps: true, font: 'montserrat', msgSize: 100, msgSpacing: 6,
-    bandInk: 0, textInk: 2, border: true,
+    border: true,
     // laser engraving
-    mode: 'poster', engInit: false,
+    mode: 'poster',
     material: 'lightwood', dither: 'jarvis', invert: false, matPreview: true,
     eWidth: 100, eInterval: 0.1, eSpeed: 100, ePower: 50,
     eBrightness: 0, eContrast: 0, eGamma: 12, eSharpen: 35, eSmooth: 15, eMaxBurn: 88, eMinBurn: 0, eCell: 6, eLines: 45, engCut: null,
-    shape: 'none', outline: false, cutLine: false,
+    shape: 'none', outline: false, cutLine: true, hole: false, holeMm: 4, holeX: 50,
     // source photo
     srcPrev: null, srcFull: null, srcW: 0, srcH: 0, lo: 0, hi: 1, imgId: 0, isSample: true,
   };
@@ -909,6 +812,41 @@ body[data-mode="engrave"] .poster-only, body:not([data-mode="engrave"]) .eng-onl
         pts.push([0, 0], [w, 0], [w, h], [0, h]);
     }
     return pts;
+  }
+  function pointInPoly(pts, x, y) {
+    let inside = false;
+    for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) {
+      const [xi, yi] = pts[i], [xj, yj] = pts[j];
+      if (yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) inside = !inside;
+    }
+    return inside;
+  }
+  function circleInside(pts, cx, cy, r) {
+    for (let i = 0; i < 24; i++) {
+      const a = (Math.PI * 2 * i) / 24;
+      if (!pointInPoly(pts, cx + r * Math.cos(a), cy + r * Math.sin(a))) return false;
+    }
+    return true;
+  }
+  // The outline of the whole piece in canvas coordinates: the shape, or the full rectangle.
+  function piecePoints(g) {
+    const sh = activeShape();
+    return sh.id === 'none' ? [[0, 0], [g.W, 0], [g.W, g.H], [0, g.H]] : shapePoints(sh.id, g.iw, g.ih).map(([x, y]) => [x + g.b, y + g.b]);
+  }
+  // Keychain hole: a small circle near the top edge at the chosen horizontal
+  // position, moved down until it and a rim of material fit inside the piece.
+  // Returns centre and radius in canvas pixels, or null when off or it cannot fit.
+  function holeGeometry(g) {
+    if (!isEng() || !S.hole) return null;
+    const dpm = g.W / (engraveDots().W * S.eInterval);   // pixels per mm on this grid
+    const r = (S.holeMm / 2) * dpm;
+    const R = r + Math.max(r * 0.9, 1.5 * dpm);           // hole plus rim
+    const pts = piecePoints(g);
+    const cx = clamp(S.holeX / 100, 0.05, 0.95) * g.W;
+    for (let y = R; y <= g.H - R; y += Math.max(1, R / 10)) {
+      if (circleInside(pts, cx, y, R)) return { cx, cy: y, r };
+    }
+    return null;
   }
   function addPath(ctx, pts, x, y) {
     pts.forEach(([px, py], i) => (i ? ctx.lineTo(x + px, y + py) : ctx.moveTo(x + px, y + py)));
@@ -1131,14 +1069,13 @@ body[data-mode="engrave"] .poster-only, body:not([data-mode="engrave"]) .eng-onl
     return hist;
   }
 
-  // Poster geometry for a given width: paper border, image area, message band.
+  // Poster geometry for a given width: margin and image area.
   function layout(W) {
-    const b = S.border ? Math.round(W * 0.035) : 0;
+    const b = S.border && activeShape().id === 'none' ? Math.round(W * 0.035) : 0;   // a shaped piece fills the export
     const iw = W - 2 * b;
-    const aspect = activeShape().aspect || (S.frame === 'photo' && S.srcW ? clamp(S.srcH / S.srcW, 0.45, 2.2) : (FRAME_ASPECT[S.frame] || 1.38));
+    const aspect = activeShape().aspect || (S.frame === 'photo' && S.srcW ? clamp(S.srcH / S.srcW, 0.45, 2.2) : (FRAME_ASPECT[S.frame] || 1.25));
     const ih = Math.round(iw * aspect);
-    const bh = S.msgOn ? Math.round(iw * 0.25 * (S.msgSize / 100)) : 0;
-    return { W, H: ih + bh + 2 * b, b, iw, ih, bh };
+    return { W, H: ih + 2 * b, b, iw, ih };
   }
 
   // Limits how far the photo can be dragged. Zoomed in, the frame stays covered;
@@ -1330,52 +1267,41 @@ body[data-mode="engrave"] .poster-only, body:not([data-mode="engrave"]) .eng-onl
     return { imageData: out, hist };
   }
 
-  function drawMessage(ctx, x, y, w, h, pal) {
-    let text = S.msgText.replace(/\s+/g, ' ').trim();
-    if (!text) return;
-    if (S.caps) text = text.toUpperCase();
-    const f = FONTS[S.font] || FONTS.montserrat;
-    const fam = `${f.family}, ${f.fallback}`;
-    const ref = 100;
-    ctx.save();
-    ctx.font = `${f.weight} ${ref}px ${fam}`;
-    if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
-    const chars = Array.from(text);
-    const natural = ctx.measureText(text).width;
-    const capRef = ctx.measureText('H').actualBoundingBoxAscent || ref * 0.72;
-    const track = S.msgSpacing / 100; // in em
-    const totalRef = natural + track * ref * (chars.length - 1);
-    const size = Math.max(4, ref * Math.min((w * 0.88) / Math.max(1, totalRef), (h * 0.56) / capRef));
-    const spacing = track * size;
-    const cap = (capRef * size) / ref;
-    const totalW = (natural * size) / ref + spacing * (chars.length - 1);
-    let cx = x + (w - totalW) / 2;
-    const baseline = y + (h + cap) / 2;
-    ctx.font = `${f.weight} ${size}px ${fam}`;
-    ctx.fillStyle = pal[S.textInk];
-    ctx.textAlign = 'left';
-    ctx.textBaseline = 'alphabetic';
-    if ('letterSpacing' in ctx) {
-      ctx.letterSpacing = `${spacing}px`;
-      ctx.fillText(text, cx, baseline);
-      ctx.letterSpacing = '0px';
-    } else {
-      for (const ch of chars) { ctx.fillText(ch, cx, baseline); cx += ctx.measureText(ch).width + spacing; }
-    }
-    ctx.restore();
-  }
-
-  function drawPoster(ctx, g, imageData, pal) {
+  function drawPoster(ctx, g, imageData, pal, preview) {
     ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.fillStyle = pal[3]; // paper border uses the highlight ink (blank material when engraving)
+    ctx.fillStyle = pal[3]; // the margin uses the highlight ink (blank material when engraving)
     ctx.fillRect(0, 0, g.W, g.H);
     ctx.putImageData(imageData, g.b, g.b);
-    maskShape(ctx, g, pal);
-    if (S.msgOn) {
-      ctx.fillStyle = pal[S.bandInk];
-      ctx.fillRect(g.b, g.b + g.ih, g.iw, g.bh);
-      drawMessage(ctx, g.b, g.b + g.ih, g.iw, g.bh, pal);
+    maskShape(ctx, g, pal, preview);
+    const hole = holeGeometry(g);
+    if (hole) {
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(hole.cx, hole.cy, hole.r, 0, Math.PI * 2);
+      if (preview) ctx.globalCompositeOperation = 'destination-out';
+      ctx.fillStyle = pal[3];
+      ctx.fill();
+      ctx.restore();
     }
+    if (preview && isEng()) drawCutGuides(ctx, g, hole);
+  }
+
+  // Preview only: dashed lines where the laser will cut.
+  function drawCutGuides(ctx, g, hole) {
+    ctx.save();
+    ctx.strokeStyle = '#f43f5e';
+    ctx.lineWidth = Math.max(1.5, g.W * 0.003);
+    ctx.setLineDash([g.W * 0.012, g.W * 0.008]);
+    ctx.lineJoin = 'round';
+    if (S.cutLine) {
+      const i = ctx.lineWidth / 2;
+      const pts = activeShape().id === 'none' ? [[i, i], [g.W - i, i], [g.W - i, g.H - i], [i, g.H - i]] : piecePoints(g);
+      ctx.beginPath();
+      addPath(ctx, pts, 0, 0);
+      ctx.stroke();
+    }
+    if (hole) { ctx.beginPath(); ctx.arc(hole.cx, hole.cy, hole.r, 0, Math.PI * 2); ctx.stroke(); }
+    ctx.restore();
   }
 
   // Engraving output grid: one pixel per laser dot across the chosen width.
@@ -1383,9 +1309,10 @@ body[data-mode="engrave"] .poster-only, body:not([data-mode="engrave"]) .eng-onl
     return layout(Math.max(16, Math.round(S.eWidth / S.eInterval)));
   }
 
-  // Engrave mode: blank out everything outside the chosen shape, and optionally
-  // engrave an outline just inside its edge (or around the picture when unshaped).
-  function maskShape(ctx, g, pal) {
+  // Engrave mode: everything outside the chosen shape is blank material in the
+  // export and see-through in the preview, so the piece looks cut out. Optionally
+  // an outline is engraved just inside the edge (or around the picture when unshaped).
+  function maskShape(ctx, g, pal, preview) {
     const sh = activeShape();
     if (sh.id === 'none' && !S.outline) return;
     const pts = shapePoints(sh.id, g.iw, g.ih);
@@ -1395,6 +1322,7 @@ body[data-mode="engrave"] .poster-only, body:not([data-mode="engrave"]) .eng-onl
       ctx.rect(g.b, g.b, g.iw, g.ih);
       addPath(ctx, pts, g.b, g.b);
       ctx.clip('evenodd');
+      if (preview) ctx.globalCompositeOperation = 'destination-out';
       ctx.fillStyle = pal[3];
       ctx.fillRect(g.b, g.b, g.iw, g.ih);
       ctx.restore();
@@ -1420,7 +1348,7 @@ body[data-mode="engrave"] .poster-only, body:not([data-mode="engrave"]) .eng-onl
     return layout(W);
   }
 
-  // Snaps anti-aliased text edges to the nearer tone, so the file holds
+  // Snaps anti-aliased shape edges to the nearer tone, so the file holds
   // nothing but pure engrave (black) and blank (white) pixels.
   function snapTwoTone(ctx, W, H) {
     const id = ctx.getImageData(0, 0, W, H), d = id.data;
@@ -1438,7 +1366,7 @@ body[data-mode="engrave"] .poster-only, body:not([data-mode="engrave"]) .eng-onl
     const out = document.createElement('canvas');
     out.width = g.W; out.height = g.H;
     const ctx = out.getContext('2d');
-    drawPoster(ctx, g, imageData, pal);
+    drawPoster(ctx, g, imageData, pal, false);
     if (isEng()) snapTwoTone(ctx, g.W, g.H);
     return { canvas: out, g };
   }
@@ -1526,20 +1454,26 @@ body[data-mode="engrave"] .poster-only, body:not([data-mode="engrave"]) .eng-onl
   });
   const xmlAttr = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
 
-  // The cut line as a LightBurn vector shape, in mm with Y up and the bitmap's
-  // bottom-left corner at (0, 0). With the message band on, the piece is the
-  // whole rectangle; otherwise the line follows the chosen shape.
+  // The cuts as LightBurn vector shapes, in mm with Y up and the bitmap's
+  // bottom-left corner at (0, 0): the piece outline (the chosen shape, or the
+  // whole rectangle) and the keychain hole. Empty when nothing is cut.
   function cutLineXml(g) {
     const iv = S.eInterval, f = (v) => +v.toFixed(3), sh = activeShape();
-    if (sh.id === 'none' || S.msgOn) {
-      return `<Shape Type="Rect" CutIndex="1" W="${f(g.W * iv)}" H="${f(g.H * iv)}"><XForm>1 0 0 1 ${f((g.W * iv) / 2)} ${f((g.H * iv) / 2)}</XForm></Shape>`;
+    const parts = [];
+    if (S.cutLine) {
+      if (sh.id === 'none') {
+        parts.push(`<Shape Type="Rect" CutIndex="1" W="${f(g.W * iv)}" H="${f(g.H * iv)}"><XForm>1 0 0 1 ${f((g.W * iv) / 2)} ${f((g.H * iv) / 2)}</XForm></Shape>`);
+      } else if (sh.ellipse) {
+        const cx = (g.b + g.iw / 2) * iv, cy = (g.H - g.b - g.ih / 2) * iv;
+        parts.push(`<Shape Type="Ellipse" CutIndex="1" Rx="${f((g.iw * iv) / 2)}" Ry="${f((g.ih * iv) / 2)}"><XForm>1 0 0 1 ${f(cx)} ${f(cy)}</XForm></Shape>`);
+      } else {
+        const verts = shapePoints(sh.id, g.iw, g.ih).map(([x, y]) => `V${f((g.b + x) * iv)} ${f((g.H - g.b - y) * iv)}`).join('');
+        parts.push(`<Shape Type="Path" CutIndex="1"><XForm>1 0 0 1 0 0</XForm><VertList>${verts}</VertList><PrimList>LineClosed</PrimList></Shape>`);
+      }
     }
-    if (sh.ellipse) {
-      const cx = (g.b + g.iw / 2) * iv, cy = (g.H - g.b - g.ih / 2) * iv;
-      return `<Shape Type="Ellipse" CutIndex="1" Rx="${f((g.iw * iv) / 2)}" Ry="${f((g.ih * iv) / 2)}"><XForm>1 0 0 1 ${f(cx)} ${f(cy)}</XForm></Shape>`;
-    }
-    const verts = shapePoints(sh.id, g.iw, g.ih).map(([x, y]) => `V${f((g.b + x) * iv)} ${f((g.H - g.b - y) * iv)}`).join('');
-    return `<Shape Type="Path" CutIndex="1"><XForm>1 0 0 1 0 0</XForm><VertList>${verts}</VertList><PrimList>LineClosed</PrimList></Shape>`;
+    const hole = holeGeometry(g);
+    if (hole) parts.push(`<Shape Type="Ellipse" CutIndex="1" Rx="${f(hole.r * iv)}" Ry="${f(hole.r * iv)}"><XForm>1 0 0 1 ${f(hole.cx * iv)} ${f((g.H - hole.cy) * iv)}</XForm></Shape>`);
+    return parts.join('\n    ');
   }
 
   /* ---- LightBurn project (.lbrn2) with the image embedded ---- */
@@ -1559,11 +1493,11 @@ body[data-mode="engrave"] .poster-only, body:not([data-mode="engrave"]) .eng-onl
     tc.fillStyle = '#ffffff'; tc.fillRect(0, 0, 256, 256);
     tc.drawImage(out, (256 - g.W * ts) / 2, (256 - g.H * ts) / 2, g.W * ts, g.H * ts);
     const thumbData = await blobToBase64(await canvasToBlob(thumb));
-    const word = S.msgOn ? S.msgText.replace(/\s+/g, ' ').trim() : '';
-    const layerName = `${word || 'Photo'} engrave`;
+    const layerName = 'Photo engrave';
     const style = (DITHERS.find((d) => d.id === S.dither) || {}).name || S.dither;
     const cutPower = 80, cutSpeed = 10;
-    const cutLayer = !S.cutLine ? '' : `
+    const cutXml = cutLineXml(g);
+    const cutLayer = !cutXml ? '' : `
     <CutSetting type="Cut">
         <index Value="1"/>
         <name Value="Cut out"/>
@@ -1576,11 +1510,13 @@ body[data-mode="engrave"] .poster-only, body:not([data-mode="engrave"]) .eng-onl
         <numPasses Value="1"/>
         <kerf Value="0"/>
     </CutSetting>`;
-    const cutShape = S.cutLine ? `\n    ${cutLineXml(g)}` : '';
+    const cutShape = cutXml ? `\n    ${cutXml}` : '';
     const sh = activeShape();
-    const notes = `Made with Screenprint Poster Maker, engrave mode.\n` +
+    const hole = holeGeometry(g);
+    const notes = `Made with Poster & Engrave.\n` +
       (sh.id !== 'none' ? `Shape: ${sh.name}.\n` : '') +
-      (S.cutLine ? `Cut layer: ${cutSpeed} mm/s at ${cutPower}% is a placeholder; set it for your material and thickness.\n` : '') +
+      (hole ? `Keychain hole: ${S.holeMm} mm.\n` : '') +
+      (cutXml ? `Cut layer: ${cutSpeed} mm/s at ${cutPower}% is a placeholder; set it for your material and thickness.\n` : '') +
       `${g.W} x ${g.H} dots at ${Math.round(dpi)} DPI (${S.eInterval} mm line interval) = ${wmm} x ${hmm} mm.\n` +
       `Material preset: ${currentMaterial().name}${S.invert ? ' (inverted)' : ''}. Style: ${style}.\n` +
       `The image is already dithered, one pixel per dot. Keep the layer on Pass-through and do not resize the image.\n` +
@@ -1693,7 +1629,8 @@ body[data-mode="engrave"] .poster-only, body:not([data-mode="engrave"]) .eng-onl
     const pal = palette(false);
     if (canvas.width !== g.W || canvas.height !== g.H) { canvas.width = g.W; canvas.height = g.H; }
     const { imageData, hist } = processImage(g, src, true, pal);
-    drawPoster(canvas.getContext('2d'), g, imageData, pal);
+    drawPoster(canvas.getContext('2d'), g, imageData, pal, true);
+    canvas.classList.toggle('shaped', isEng() && (activeShape().id !== 'none' || !!holeGeometry(g)));
     lastGeom = g;
     lastHist = hist;
     drawLevels();
@@ -1740,8 +1677,8 @@ body[data-mode="engrave"] .poster-only, body:not([data-mode="engrave"]) .eng-onl
     const ctx = cv.getContext('2d');
     ctx.clearRect(0, 0, w, h);
     const css = getComputedStyle(document.documentElement);
-    const soft = css.getPropertyValue('--ink-soft').trim() || '#56687b';
-    const rule = css.getPropertyValue('--rule').trim() || 'rgba(0,0,0,.15)';
+    const soft = css.getPropertyValue('--muted').trim() || '#6b7280';
+    const rule = css.getPropertyValue('--line').trim() || 'rgba(0,0,0,.1)';
     const stripH = Math.round(12 * dpr);
     const stripY = h - stripH - Math.round(3 * dpr);
     const histH = stripY - Math.round(6 * dpr);
@@ -1928,19 +1865,6 @@ body[data-mode="engrave"] .poster-only, body:not([data-mode="engrave"]) .eng-onl
     });
   }
 
-  function buildDots(id, key) {
-    const wrap = $(id);
-    for (let i = 0; i < 4; i++) {
-      const b = document.createElement('button');
-      b.type = 'button';
-      b.className = 'dot';
-      b.dataset.slot = String(i);
-      b.setAttribute('aria-label', `${SLOT_NAMES[i]} ink`);
-      b.addEventListener('click', () => { S[key] = i; syncInks(); scheduleRender(); });
-      wrap.appendChild(b);
-    }
-  }
-
   // Pushes the ink state into every control that shows it.
   function syncInks() {
     const active = SLOTS_FOR[S.count];
@@ -1959,18 +1883,8 @@ body[data-mode="engrave"] .poster-only, body:not([data-mode="engrave"]) .eng-onl
       const p = PRESETS.find((x) => x.id === b.dataset.id);
       b.setAttribute('aria-pressed', String(p.inks.every((c, i) => c.toUpperCase() === S.inks[i].toUpperCase())));
     });
-    const pal = palette(false), eng = isEng();
-    [['dots-band', 'bandInk'], ['dots-text', 'textInk']].forEach(([id, key]) => {
-      $(id).querySelectorAll('.dot').forEach((b, i) => {
-        b.style.setProperty('--c', pal[i]);
-        b.hidden = eng && (i === 1 || i === 2); // engrave mode: only "engraved" and "blank"
-        b.setAttribute('aria-label', eng ? (i < 2 ? 'Engraved' : 'Blank material') : `${SLOT_NAMES[i]} ink`);
-        b.setAttribute('aria-pressed', String(S[key] === i));
-      });
-    });
-    const used = SLOTS_FOR[activeCount()].map((i) => `<i style="background:${pal[i]}"></i>`).join('');
-    $('mark').innerHTML = used;
-    $('colorbar').innerHTML = used;
+    const pal = palette(false);
+    $('colorbar').innerHTML = SLOTS_FOR[activeCount()].map((i) => `<i style="background:${pal[i]}"></i>`).join('');
   }
 
   // Buttons
@@ -1996,26 +1910,10 @@ body[data-mode="engrave"] .poster-only, body:not([data-mode="engrave"]) .eng-onl
   });
   $('reset-split').addEventListener('click', () => { if (isEng()) S.engCut = null; else S.cuts = null; positionCuts(); scheduleRender(); });
 
-  // Message
-  const msgText = $('msg-text');
-  msgText.addEventListener('input', () => { S.msgText = msgText.value; scheduleRender(); });
-  $('msg-font').addEventListener('change', (e) => {
-    S.font = e.target.value;
-    const f = FONTS[S.font];
-    if (document.fonts && document.fonts.load) document.fonts.load(`${f.weight} 64px ${f.family}`).then(scheduleRender, scheduleRender);
-    scheduleRender();
-  });
   function bindSwitch(id, key, after) {
     const el = $(id);
     el.addEventListener('change', () => { S[key] = el.checked; if (after) after(); scheduleRender(); });
   }
-  function syncMsgEnabled() {
-    const fields = $('msg-fields');
-    fields.classList.toggle('is-off', !S.msgOn);
-    fields.querySelectorAll('input, select, button').forEach((el) => { el.disabled = !S.msgOn; });
-  }
-  bindSwitch('msg-on', 'msgOn', () => { syncMsgEnabled(); syncShapes(); });
-  bindSwitch('msg-caps', 'caps', () => msgText.classList.toggle('caps', S.caps));
   bindSwitch('border-on', 'border');
 
   /* =====================================================================
@@ -2145,9 +2043,8 @@ body[data-mode="engrave"] .poster-only, body:not([data-mode="engrave"]) .eng-onl
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') $('saveview').hidden = true; });
 
   function exportName(ext) {
-    const slug = S.msgOn ? S.msgText.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 32) : '';
-    if (isEng()) return `${slug || 'photo'}-engrave-${Math.round(25.4 / S.eInterval)}dpi.${ext}`;
-    return `${slug || 'screenprint'}-poster.png`;
+    if (isEng()) return `engraving-${Math.round(25.4 / S.eInterval)}dpi.${ext}`;
+    return `poster-${S.count}-inks.png`;
   }
 
   async function saveBlob(blob, filename, isImage) {
@@ -2203,15 +2100,10 @@ body[data-mode="engrave"] .poster-only, body:not([data-mode="engrave"]) .eng-onl
   function setMode() {
     const eng = isEng();
     document.body.dataset.mode = S.mode;
-    if (eng && !S.engInit) { S.engInit = true; S.bandInk = 3; S.textInk = 0; } // blank band, engraved letters
-    if (eng) { // only slots 0 (engraved) and 3 (blank) exist in engrave mode
-      if (S.bandInk === 1) S.bandInk = 0; if (S.bandInk === 2) S.bandInk = 3;
-      if (S.textInk === 1) S.textInk = 0; if (S.textInk === 2) S.textInk = 3;
-    }
     $('h-effects').textContent = eng ? 'Tones' : 'Effects';
     $('tagline').textContent = eng
-      ? 'Turn a photo into a two-tone image ready for a laser engraver, and a LightBurn file to burn it.'
-      : 'Turn a photo into a bold poster printed in two to four inks.';
+      ? 'Turn a photo into a two-tone image ready for a laser engraver, plus a LightBurn file to burn it.'
+      : 'Turn a photo into a flat-ink poster or a laser-ready engraving.';
     $('btn-download').classList.toggle('btn-primary', !eng);
     $('btn-download').classList.toggle('btn-outline', eng);
     canvas.setAttribute('aria-label', eng
@@ -2292,21 +2184,25 @@ body[data-mode="engrave"] .poster-only, body:not([data-mode="engrave"]) .eng-onl
     document.querySelectorAll('#shapes .shape').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.id === S.shape)));
     document.querySelector('.seg[data-key="frame"]').classList.toggle('is-off', !!sh.aspect);
     $('shape-hint').textContent = sh.id === 'none'
-      ? 'Pick a shape to mask the picture. Outside it nothing is engraved.'
-      : sh.aspect ? `The ${sh.name.toLowerCase()} sets the proportions, so the Frame choice is ignored.`
-      : `The ${sh.name.toLowerCase()} follows the Frame proportions.`;
+      ? 'Pick a shape to make the piece that shape. Outside it nothing is engraved.'
+      : sh.aspect ? `The ${sh.name.toLowerCase()} fills the piece and sets its proportions, so Frame and Margin are ignored.`
+      : `The ${sh.name.toLowerCase()} fills the piece and follows the Frame proportions. Margin is ignored.`;
+    $('border-row').classList.toggle('is-off', sh.id !== 'none');
     $('eng-outline').checked = S.outline;
     $('eng-cutline').checked = S.cutLine;
+    $('eng-hole').checked = S.hole;
+    $('hole-fields').hidden = !S.hole;
     const hint = $('cut-hint');
     hint.hidden = !S.cutLine;
-    hint.textContent = sh.id !== 'none' && !S.msgOn
+    hint.textContent = sh.id !== 'none'
       ? `A second layer in the .lbrn2 cuts along the ${sh.name.toLowerCase()}. Its speed and power are placeholders.`
-      : 'A second layer in the .lbrn2 cuts the outer rectangle. Switch the message band off to cut along a shape. Its speed and power are placeholders.';
+      : 'A second layer in the .lbrn2 cuts the outer rectangle. Its speed and power are placeholders.';
   }
 
   function buildEngraveInputs() {
     bindSwitch('eng-outline', 'outline');
     bindSwitch('eng-cutline', 'cutLine', syncShapes);
+    bindSwitch('eng-hole', 'hole', syncShapes);
     const sel = $('eng-dither');
     DITHERS.forEach((d) => { const o = document.createElement('option'); o.value = d.id; o.textContent = d.name; sel.appendChild(o); });
     sel.addEventListener('change', () => { S.dither = sel.value; syncEngUI(); scheduleRender(); });
@@ -2335,18 +2231,8 @@ body[data-mode="engrave"] .poster-only, body:not([data-mode="engrave"]) .eng-onl
   }
 
   /* =====================================================================
-     Fonts, theme and start-up
+     Theme and start-up
      ===================================================================== */
-
-  function loadCaptionFonts() {
-    if (!document.fonts || !document.fonts.load) return;
-    Promise.all(Object.values(FONTS).map((f) => document.fonts.load(`${f.weight} 64px ${f.family}`).catch(() => null)))
-      .then(scheduleRender);
-  }
-  const gf = $('gf');
-  if (gf && gf.sheet) loadCaptionFonts();
-  else if (gf) gf.addEventListener('load', loadCaptionFonts, { once: true });
-  if (document.fonts && document.fonts.addEventListener) document.fonts.addEventListener('loadingdone', scheduleRender);
 
   // The Tone split canvas reads theme colours, so redraw it when the theme flips.
   const redrawLevels = () => drawLevels();
@@ -2366,15 +2252,12 @@ body[data-mode="engrave"] .poster-only, body:not([data-mode="engrave"]) .eng-onl
   buildMaterials();
   buildShapes();
   buildEngraveInputs();
-  buildDots('dots-band', 'bandInk');
-  buildDots('dots-text', 'textInk');
   buildCutHandles();
   Object.keys(SLIDERS).forEach(syncSlider);
   syncSeg('frame');
   syncSeg('count');
   syncSeg('hatch');
   syncInks();
-  syncMsgEnabled();
   if (location.hash === '#engrave') S.mode = 'engrave'; // open straight into engrave mode
   setMode();
 
